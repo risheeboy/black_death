@@ -31,3 +31,6 @@ test/*
 .metadata
 black_death.iml
 analysis_options.yaml
+.firebase/hosting.*.cache
+.github/workflows/firebase-hosting-merge.yml
+.github/workflows/firebase-hosting-pull-request.yml

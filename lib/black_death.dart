@@ -1,7 +1,7 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:charts_flutter/flutter.dart' as charts;
+import 'package:fl_chart/fl_chart.dart';
 
 // Starting values
 const startingMoney = 100;
@@ -135,6 +135,9 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           text: "Create EV Factory",
                           icon: Icons.electric_car,
                         ),
+                        StatusText(title: "Year", value: "$lapsedYears"),
+                        StatusText(title: "Money", value: "\$" + money.toString()),
+                        StatusText(title: "CO2 Level", value: "$co2Level ppm", isCritical: co2Level >= upperPointOfNoReturnCo2),
                       ],
                     ),
                   ),
@@ -147,27 +150,30 @@ class _BlackDeathAppState extends State<BlackDeath> {
                   elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
-                    child: charts.LineChart(
-                      _createData(),
-                      animate: false,
-                    ),
-                  ),
-                ),
-              ),
+                    child: LineChart(
+                      LineChartData(
+                        minX: 0,
+                        maxX: 100,
+                        minY: 100,
+                        maxY: 600,
+                        gridData: FlGridData(show: true),
+                        titlesData: FlTitlesData(
+                          bottomTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: true),
+                          ),
+                          leftTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: true),
+                          ),
+                          topTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false), // Hide top titles
+                          ),
+                          rightTitles: AxisTitles(
+                            sideTitles: SideTitles(showTitles: false), // Hide right titles
+                          ),
+                        ),
 
-              // Status Column
-              Expanded(
-                child: Card(
-                  elevation: 4,
-                  child: Padding(
-                    padding: const EdgeInsets.all(8.0),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        StatusText(title: "Year", value: "$lapsedYears"),
-                        StatusText(title: "Money", value: "\$" + money.toString()),
-                        StatusText(title: "CO2 Level", value: "$co2Level ppm", isCritical: co2Level >= upperPointOfNoReturnCo2),
-                      ],
+                        lineBarsData: _createData(),
+                      ),
                     ),
                   ),
                 ),
@@ -179,13 +185,13 @@ class _BlackDeathAppState extends State<BlackDeath> {
     );
   }
 
-  List<charts.Series<dynamic, int>> _createData() {
+  List<LineChartBarData> _createData() {
     return [
-      charts.Series<Data, int>(
-        id: 'CO2 Level',
-        domainFn: (Data data, _) => data.year,
-        measureFn: (Data data, _) => data.co2Level,
-        data: co2Data,
+      LineChartBarData(
+        spots: co2Data.map((data) => FlSpot(data.year.toDouble(), data.co2Level)).toList(),
+        isCurved: true,
+        barWidth: 2,
+        color: Colors.blue,
       ),
     ];
   }
