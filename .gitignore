@@ -25,3 +25,9 @@ doc/api/
 
 .flutter-plugins
 .flutter-plugins-dependencies
+web/*
+test/*
+.idea/*
+.metadata
+black_death.iml
+analysis_options.yaml
