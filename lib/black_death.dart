@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
@@ -11,13 +12,20 @@ const moneyIncreasePerYear = 35;
 const upperPointOfNoReturnCo2 = 550;
 const lowerPointOfNoReturnCo2 = 200;
 bool isGameOver = false;
-
+var capitalExpense = {
+  'solar': 100,
+  'wind': 100,
+  'electric': 100,
+};
 
 // Game variables
 int lapsedYears = 0;
 int money = startingMoney;
 double co2Level = initialCo2Level;
 final co2Data = [Data(0, initialCo2Level),];
+final factories = [];
+int demand = 12; // in MWh per year of clean energy
+int supply = 10; // in MWh per year of clean energy
 
 // Timer to update game state
 late Timer timer;
@@ -39,6 +47,14 @@ class _BlackDeathAppState extends State<BlackDeath> {
         money += moneyIncreasePerYear;
         co2Level += yearlyCo2Increase;
         co2Data.add(Data(lapsedYears, co2Level));
+        for (var factory in factories) {
+          //money -= 10; // Opex
+          if (lapsedYears >= factory.startYear + 2) {
+            // Factory is operational
+            supply += 1;
+          }
+        }
+        co2Level -= 0.05 * min(demand, supply);
         if (co2Level >= upperPointOfNoReturnCo2) {
           // Game over
           _gameOver("CO2 levels exceeded the point of no return. Earth is doomed.");
@@ -46,7 +62,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
         }
         else if (co2Level <= lowerPointOfNoReturnCo2) {
           // Game over
-          _gameOver("CO2 levels dropped below the point of no return. Earth is doomed.");
+          _gameOver("CO2 levels dropped. Earth is saved.");
           timer.cancel();
         }
       });
@@ -77,23 +93,38 @@ class _BlackDeathAppState extends State<BlackDeath> {
     );
   }
 
-  void createFactory(String type) {
-    if (isGameOver) return;
-    setState(() {
-      if (type == "solar") {
-        money -= 10;
-        co2Level -= 10;
-      } else if (type == "wind") {
-        money -= 10;
-        co2Level -= 10;
-        // Logic for creating a wind factory
-      } else if (type == "electric") {
-        money -= 10;
-        co2Level -= 10;
-        // Logic for creating an electric vehicle factory
+  void createSupply(String type) {
+      if (isGameOver) return;
+      int cost = capitalExpense[type]!;
+      if(cost <= money) {
+        setState(() {
+          factories.add(Factory(lapsedYears, type));
+              money -= capitalExpense[type]!;// Capex
+        });
+      } else {
+        // Show dialog to inform user that they don't have enough money
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            title: Text("Not enough money"),
+            content: Text("You need \$$cost to create a $type factory."),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text("OK"),
+              ),
+            ],
+          ),
+        );
       }
-      // Update money and CO2 level accordingly
-    });
+  }
+
+  void createDemand() {
+      if (isGameOver || money <= 0) return;
+      setState(() {
+        demand += 1;
+        money -= 10;// Capex
+      });
   }
 
   @override
@@ -107,8 +138,15 @@ class _BlackDeathAppState extends State<BlackDeath> {
         appBar: AppBar(
           title: Text("Black Death"),
         ),
-        body: Padding(
-          padding: const EdgeInsets.all(8.0),
+        body: Container(
+          decoration: BoxDecoration(
+            image: DecorationImage(
+              image: AssetImage("earth_smoke.png"),
+              fit: BoxFit.cover,
+              // transparancy of the image
+              colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.2), BlendMode.dstATop),
+            ),
+          ),
           child: Row(
             children: [
               // Actions Column
@@ -121,23 +159,27 @@ class _BlackDeathAppState extends State<BlackDeath> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         FactoryButton(
-                          onPressed: () => createFactory("solar"),
+                          onPressed: () => createSupply("solar"),
                           text: "Create Solar Factory",
                           icon: Icons.solar_power,
                         ),
                         FactoryButton(
-                          onPressed: () => createFactory("wind"),
+                          onPressed: () => createSupply("wind"),
                           text: "Create Wind Factory",
                           icon: Icons.air,
                         ),
                         FactoryButton(
-                          onPressed: () => createFactory("electric"),
-                          text: "Create EV Factory",
-                          icon: Icons.electric_car,
+                          onPressed: () => createDemand(),
+                          text: "Educate Youth",
+                          icon: Icons.book_online_sharp,
                         ),
                         StatusText(title: "Year", value: "$lapsedYears"),
                         StatusText(title: "Money", value: "\$" + money.toString()),
                         StatusText(title: "CO2 Level", value: "$co2Level ppm", isCritical: co2Level >= upperPointOfNoReturnCo2),
+                        StatusText(title: "lapsedYears", value: "$lapsedYears"),
+                        StatusText(title: "demand", value: "$demand"),
+                        StatusText(title: "supply", value: "$supply"),
+                        StatusText(title: "factories", value: "${factories.length}"),
                       ],
                     ),
                   ),
@@ -202,7 +244,14 @@ class Data {
   final double co2Level;
 
   const Data(this.year, this.co2Level);
-  }
+}
+
+
+class Factory {
+  final int startYear;
+  final String type;
+  const Factory(this.startYear, this.type);
+}
 
 class FactoryButton extends StatelessWidget {
   final VoidCallback onPressed;
