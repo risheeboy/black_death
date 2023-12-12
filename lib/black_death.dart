@@ -24,12 +24,11 @@ int money = startingMoney;
 double co2Level = initialCo2Level;
 final co2Data = [Data(0, initialCo2Level),];
 final factories = [];
-int demand = 12; // in MWh per year of clean energy
-int supply = 10; // in MWh per year of clean energy
+double demand = 15; // in MWh per year of clean energy
+double supply = 10; // in MWh per year of clean energy
 
 // Timer to update game state
 late Timer timer;
-void main() => runApp(BlackDeath());
 
 class BlackDeath extends StatefulWidget {
   @override
@@ -51,7 +50,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
           //money -= 10; // Opex
           if (lapsedYears >= factory.startYear + 2) {
             // Factory is operational
-            supply += 1;
+            supply += 0.1;
           }
         }
         co2Level -= 0.05 * min(demand, supply);
@@ -147,11 +146,12 @@ class _BlackDeathAppState extends State<BlackDeath> {
               colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.2), BlendMode.dstATop),
             ),
           ),
-          child: Row(
+          child: Column(
             children: [
               // Actions Column
               Expanded(
                 child: Card(
+                  color: Colors.white.withOpacity(0.6),
                   elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -160,25 +160,25 @@ class _BlackDeathAppState extends State<BlackDeath> {
                       children: [
                         FactoryButton(
                           onPressed: () => createSupply("solar"),
-                          text: "Create Solar Factory",
+                          text: "Solar Factory",
                           icon: Icons.solar_power,
                         ),
                         FactoryButton(
                           onPressed: () => createSupply("wind"),
-                          text: "Create Wind Factory",
+                          text: "Wind Factory",
                           icon: Icons.air,
                         ),
                         FactoryButton(
                           onPressed: () => createDemand(),
                           text: "Educate Youth",
-                          icon: Icons.book_online_sharp,
+                          icon: Icons.school,
                         ),
                         StatusText(title: "Year", value: "$lapsedYears"),
                         StatusText(title: "Money", value: "\$" + money.toString()),
-                        StatusText(title: "CO2 Level", value: "$co2Level ppm", isCritical: co2Level >= upperPointOfNoReturnCo2),
+                        StatusText(title: "CO2 Level", value: "${co2Level.round()} ppm", isCritical: co2Level >= upperPointOfNoReturnCo2),
                         StatusText(title: "lapsedYears", value: "$lapsedYears"),
-                        StatusText(title: "demand", value: "$demand"),
-                        StatusText(title: "supply", value: "$supply"),
+                        StatusText(title: "demand", value: "${demand.round()}"),
+                        StatusText(title: "supply", value: "${supply.round()}"),
                         StatusText(title: "factories", value: "${factories.length}"),
                       ],
                     ),
@@ -189,6 +189,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
               // Chart Column
               Expanded(
                 child: Card(
+                  color: Colors.white.withOpacity(0.4),
                   elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
