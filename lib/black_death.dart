@@ -24,6 +24,7 @@ int money = startingMoney;
 double co2Level = initialCo2Level;
 final co2Data = [Data(0, initialCo2Level),];
 final factories = [];
+int education = 0;
 double demand = 15; // in MWh per year of clean energy
 double supply = 10; // in MWh per year of clean energy
 
@@ -122,6 +123,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
       if (isGameOver || money <= 0) return;
       setState(() {
         demand += 1;
+        education += 1;
         money -= 10;// Capex
       });
   }
@@ -148,7 +150,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
           ),
           child: Column(
             children: [
-              // Actions Column
+              // Actions
               Expanded(
                 child: Card(
                   color: Colors.white.withOpacity(0.6),
@@ -156,37 +158,73 @@ class _BlackDeathAppState extends State<BlackDeath> {
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
                     child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
-                        FactoryButton(
-                          onPressed: () => createSupply("solar"),
-                          text: "Solar Factory",
-                          icon: Icons.solar_power,
+                        // Use Wrap to wrap all the buttons if they don't fit in one line
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            FactoryButton.CreateButton(
+                              onPressed: () => createSupply("solar"),
+                              text: "Solar Factory",
+                              icon: Icons.solar_power,
+                            ),
+                            // Show icons for all Solar factories
+                            ...factories.where((factory) => factory.type == "solar").map((factory) => Icon(Icons.solar_power)),
+                          ],
                         ),
-                        FactoryButton(
-                          onPressed: () => createSupply("wind"),
-                          text: "Wind Factory",
-                          icon: Icons.air,
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            FactoryButton.CreateButton(
+                              onPressed: () => createSupply("wind"),
+                              text: "Wind Factory",
+                              icon: Icons.air,
+                            ),
+                            // Show icons for all Wind factories
+                            ...factories.where((factory) => factory.type == "wind").map((factory) => Icon(Icons.air)),
+                          ],
                         ),
-                        FactoryButton(
-                          onPressed: () => createDemand(),
-                          text: "Educate Youth",
-                          icon: Icons.school,
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            FactoryButton.CreateButton(
+                              onPressed: () => createDemand(),
+                              text: "Educate Youth",
+                              icon: Icons.school,
+                            ),
+                            // Show education level using school icons
+                            ...List.generate(education, (index) => Icon(Icons.school)),
+                          ],
                         ),
-                        StatusText(title: "Year", value: "$lapsedYears"),
-                        StatusText(title: "Money", value: "\$" + money.toString()),
-                        StatusText(title: "CO2 Level", value: "${co2Level.round()} ppm", isCritical: co2Level >= upperPointOfNoReturnCo2),
-                        StatusText(title: "lapsedYears", value: "$lapsedYears"),
-                        StatusText(title: "demand", value: "${demand.round()}"),
-                        StatusText(title: "supply", value: "${supply.round()}"),
-                        StatusText(title: "factories", value: "${factories.length}"),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            StatusText(title: "Demand", value: "${demand.round()}", isCritical: supply > demand + 5),
+                            StatusText(title: "Supply", value: "${supply.round()}", isCritical: demand > supply + 5),
+                          ],
+                        ),
+                        Wrap(
+                          spacing: 8,
+                          runSpacing: 8,
+                          children: [
+                            StatusText(title: "Money", value: "\$${money.toString()} MM", isCritical: money > 1000),
+                            StatusText(title: "CO2 Level", value: "${co2Level.round()} ppm", isCritical: co2Level > upperPointOfNoReturnCo2 - 50),
+                            StatusText(title: "Lapsed Years", value: "$lapsedYears"),
+                          ],
+                        ),
                       ],
                     ),
                   ),
                 ),
               ),
 
-              // Chart Column
+              // Chart
               Expanded(
                 child: Card(
                   color: Colors.white.withOpacity(0.4),
@@ -259,7 +297,7 @@ class FactoryButton extends StatelessWidget {
   final String text;
   final IconData icon;
 
-  const FactoryButton({
+  const FactoryButton.CreateButton({
     Key? key,
     required this.onPressed,
     required this.text,
@@ -273,8 +311,8 @@ class FactoryButton extends StatelessWidget {
       icon: Icon(icon),
       label: Text(text),
       style: ElevatedButton.styleFrom(
-        primary: Colors.blue,
-        onPrimary: Colors.white,
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(8),
         ),
@@ -297,12 +335,18 @@ class StatusText extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Text(
-      "$title: $value",
-      style: TextStyle(
-        fontSize: 18,
-        fontWeight: FontWeight.bold,
-        color: isCritical ? Colors.red : Colors.black,
+    // Use Text widget inside a Card, to display the title and value
+    return Card(
+      color: isCritical ? Colors.amber : Colors.white,
+      
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Column(
+          children: [
+            Text(title, style: TextStyle(fontWeight: FontWeight.bold)),
+            Text(value),
+          ],
+        ),
       ),
     );
   }
