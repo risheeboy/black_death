@@ -3,6 +3,8 @@ import 'dart:math';
 
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:audioplayers/audioplayers.dart';
+
 
 // Starting values
 const startingMoney = 100;
@@ -31,6 +33,11 @@ double supply = 10; // in MWh per year of clean energy
 // Timer to update game state
 late Timer timer;
 
+void playAudioButton() async {
+  final player = AudioPlayer();
+  await player.play(AssetSource('audio/chime1.mp3'));
+}
+
 class BlackDeath extends StatefulWidget {
   @override
   _BlackDeathAppState createState() => _BlackDeathAppState();
@@ -40,7 +47,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
   @override
   void initState() {
     super.initState();
-    // Start timer to update game state
+        // Start timer to update game state
     timer = Timer.periodic(Duration(seconds: 1), (_) {
       setState(() {
         lapsedYears++;
@@ -94,7 +101,9 @@ class _BlackDeathAppState extends State<BlackDeath> {
   }
 
   void createSupply(String type) {
+      playAudioButton();
       if (isGameOver) return;
+      checkForTrivia();
       int cost = capitalExpense[type]!;
       if(cost <= money) {
         setState(() {
@@ -121,12 +130,75 @@ class _BlackDeathAppState extends State<BlackDeath> {
 
   void createDemand() {
       if (isGameOver || money <= 0) return;
+      checkForTrivia();
       setState(() {
         demand += 1;
         education += 1;
         money -= 10;// Capex
       });
   }
+
+  void checkForTrivia() {
+  if (Random().nextInt(4) == 0) { // 1 in 4 chance
+    showTriviaQuestion();
+  }
+}
+
+void showTriviaQuestion() {
+  var trivia = getRandomTriviaQuestion();
+
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: Text("Trivia Question"),
+      content: SingleChildScrollView( // Use SingleChildScrollView for longer content
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(trivia.question, style: TextStyle(fontWeight: FontWeight.bold)),
+            SizedBox(height: 30), // Spacing for better readability
+            // Display each option with added spacing
+            ...List.generate(trivia.options.length, (index) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 3.0), // Vertical spacing for options
+                child: ElevatedButton(
+                  onPressed: () {
+                    Navigator.pop(context); // Close trivia dialog
+                    if (index == trivia.correctAnswerIndex) {
+                      // Correct answer logic
+                      showDialog(
+                        context: context,
+                        builder: (context) => AlertDialog(
+                          title: Text("Correct!"),
+                          content: Text("You earned \$1000 MM."),
+                          actions: [
+                            TextButton(
+                              onPressed: () => Navigator.pop(context),
+                              child: Text("OK"),
+                            ),
+                          ],
+                        ),
+                      );
+                      setState(() {
+                        money += 1000; // Reward for correct answer
+                      });
+                    }
+                  },
+                  child: Text(trivia.options[index]),
+                  style: ElevatedButton.styleFrom(
+                    primary: Colors.blueGrey, // Button color
+                    onPrimary: Colors.white, // Text color
+                  ),
+                ),
+              );
+            }),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
 
   @override
   Widget build(BuildContext context) {
@@ -142,7 +214,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
-              image: AssetImage("earth_smoke.png"),
+              image: AssetImage("images/earth_smoke.png"),
               fit: BoxFit.cover,
               // transparancy of the image
               colorFilter: ColorFilter.mode(Colors.white.withOpacity(0.2), BlendMode.dstATop),
@@ -319,6 +391,40 @@ class FactoryButton extends StatelessWidget {
       ),
     );
   }
+}
+
+// Define a trivia question structure
+class TriviaQuestion {
+  String question;
+  List<String> options;
+  int correctAnswerIndex;
+
+  TriviaQuestion(this.question, this.options, this.correctAnswerIndex);
+}
+
+// Sample trivia questions
+List<TriviaQuestion> triviaQuestions = [
+  TriviaQuestion("What is the main cause of climate change?", ["Deforestation", "Fossil fuels", "Agriculture", "Volcanic activity"], 1),
+  TriviaQuestion("Which renewable energy source is most widely used worldwide?", ["Solar", "Wind", "Hydroelectric", "Geothermal"], 2),
+  TriviaQuestion("What year was the Paris Agreement signed?", ["2012", "2015", "2018", "2020"], 1),
+  TriviaQuestion("Which country emits the most carbon dioxide?", ["USA", "China", "India", "Russia"], 1),
+  TriviaQuestion("What is the primary cause of rising sea levels?", ["Melting glaciers", "Deforestation", "Urbanization", "Desertification"], 0),
+  TriviaQuestion("Which of the following is not a greenhouse gas?", ["Carbon dioxide", "Methane", "Nitrous oxide", "water vapour"], 3),
+  TriviaQuestion("What percentage of the global greenhouse gas emissions does the transportation sector emit?", ["10%", "20%", "33%", "70%"], 1),
+  TriviaQuestion("Which of these countries emits the most carbon dioxide?", ["USA", "China", "India", "Russia"], 1),
+  TriviaQuestion("What is the Greenhouse effect?", ["The name of climate change legislation that was passed by Congress", "When you paint your house green to become an environmentalist", "When the gasses in our atmosphere trap heat and block it from escaping our planet", "When you build a greenhouse"], 2),
+  TriviaQuestion("Which of the following is NOT a consequence associated with climate change?", ["The ice sheets are declining, glaciers are in retreat globally, and our oceans are more acidic than ever", "Decrease in widespread migration of people across the globe.", "More extreme weather like droughts, heat waves, and hurricanes", "Global sea levels are rising at an alarmingly fast rate - 17 centimeters (6.7 inches) in the last century alone and going higher"], 1),
+  TriviaQuestion("What can you do to help fight climate change?", ["Utilize public transit", "Consume less meat products", "Vote for political candidates who will advocate for climate-related legislation and policy improvements", "All of the above"], 3),
+  TriviaQuestion("True or False: The overwhelming majority of scientists agree that climate change is real and caused by humans.", ["True", "False"], 0),
+  TriviaQuestion("True or False: Wasting less food is a way to reduce greenhouse gas emissions.", ["True", "False"], 0),
+  TriviaQuestion("Which years have been the hottest on record?", ["2013 and 2019", "2016 and 2020", "2015 and 2022", "2005 and 2014"], 1),
+  // Add more questions here
+];
+
+// Function to randomly select a trivia question
+TriviaQuestion getRandomTriviaQuestion() {
+  var randomIndex = Random().nextInt(triviaQuestions.length);
+  return triviaQuestions[randomIndex];
 }
 
 class StatusText extends StatelessWidget {
