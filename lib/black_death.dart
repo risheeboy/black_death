@@ -1,37 +1,18 @@
-import 'dart:async';
 import 'dart:math';
 
+import 'package:black_death/game_actions.dart';
 import 'package:flutter/material.dart';
+import 'game_manager.dart';
+import 'game_state.dart';
+import 'game_timer.dart';
+import 'utils.dart';
+//import 'q_learning_agent.dart';
+import 'simple_agent.dart';
+
 import 'package:fl_chart/fl_chart.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-
-// Starting values
-const startingMoney = 100;
-const initialCo2Level = 415.0;
-const yearlyCo2Increase = 2.5;
-const moneyIncreasePerYear = 35;
-const upperPointOfNoReturnCo2 = 550;
-const lowerPointOfNoReturnCo2 = 200;
-bool isGameOver = false;
-var capitalExpense = {
-  'solar': 100,
-  'wind': 100,
-  'electric': 100,
-};
-
-// Game variables
-int lapsedYears = 0;
-int money = startingMoney;
-double co2Level = initialCo2Level;
-final co2Data = [Data(0, initialCo2Level),];
-final factories = [];
-int education = 0;
-double demand = 15; // in MWh per year of clean energy
-double supply = 10; // in MWh per year of clean energy
-
-// Timer to update game state
-late Timer timer;
+final co2Data = [];
 
 void playAudioButton() async {
   final player = AudioPlayer();
@@ -44,47 +25,41 @@ class BlackDeath extends StatefulWidget {
 }
 
 class _BlackDeathAppState extends State<BlackDeath> {
+  late GameManager gameManager;
+  late GameTimer gameTimer;
+
   @override
   void initState() {
     super.initState();
-        // Start timer to update game state
-    timer = Timer.periodic(Duration(seconds: 1), (_) {
+    GameState state = GameState();
+    //QLearningAgent agent = QLearningAgent();
+    SimpleAgent agent = SimpleAgent();
+    gameManager = GameManager(state, agent);
+    gameTimer = GameTimer(onYearPassed: () {
       setState(() {
-        lapsedYears++;
-        money += moneyIncreasePerYear;
-        co2Level += yearlyCo2Increase;
-        co2Data.add(Data(lapsedYears, co2Level));
-        for (var factory in factories) {
-          //money -= 10; // Opex
-          if (lapsedYears >= factory.startYear + 2) {
-            // Factory is operational
-            supply += 0.1;
-          }
-        }
-        co2Level -= 0.05 * min(demand, supply);
-        if (co2Level >= upperPointOfNoReturnCo2) {
-          // Game over
+        gameManager.updateGameState();
+        if(state.co2Level > co2LevelMax) {
           _gameOver("CO2 levels exceeded the point of no return. Earth is doomed.");
-          timer.cancel();
-        }
-        else if (co2Level <= lowerPointOfNoReturnCo2) {
-          // Game over
+          gameTimer.stop();
+        } else if (state.co2Level < co2LevelIdeal) {
           _gameOver("CO2 levels dropped. Earth is saved.");
-          timer.cancel();
+          gameTimer.stop();
         }
+        co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
       });
     });
+    gameTimer.start();
   }
 
   @override
   void dispose() {
-    timer.cancel();
+    gameTimer.stop();
     super.dispose();
   }
 
+
   // Game over dialog
   void _gameOver(String message) {
-    isGameOver = true;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -100,117 +75,111 @@ class _BlackDeathAppState extends State<BlackDeath> {
     );
   }
 
-  void createSupply(String type) {
-      playAudioButton();
-      if (isGameOver) return;
-      checkForTrivia();
-      int cost = capitalExpense[type]!;
-      if(cost <= money) {
-        setState(() {
-          factories.add(Factory(lapsedYears, type));
-              money -= capitalExpense[type]!;// Capex
-        });
-      } else {
-        // Show dialog to inform user that they don't have enough money
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            title: Text("Not enough money"),
-            content: Text("You need \$$cost to create a $type factory."),
-            actions: [
-              TextButton(
-                onPressed: () => Navigator.pop(context),
-                child: Text("OK"),
-              ),
-            ],
-          ),
-        );
-      }
-  }
-
-  void createDemand() {
-      if (isGameOver || money <= 0) return;
-      checkForTrivia();
+  void createSupply(GameState state, GameAction action) {
+    playAudioButton();
+    if (!state.isGameOn) return;
+    checkForTrivia(state);
+    double cost = capitalExpense[action]!;
+    if (cost <= state.money) {
       setState(() {
-        demand += 1;
-        education += 1;
-        money -= 10;// Capex
+        state.solarProduction += 1;
+        state.money -= cost; // Capex
       });
-  }
-
-  void checkForTrivia() {
-  if (Random().nextInt(4) == 0) { // 1 in 4 chance
-    showTriviaQuestion();
-  }
-}
-
-void showTriviaQuestion() {
-  var trivia = getRandomTriviaQuestion();
-
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: Text("Trivia Question"),
-      content: SingleChildScrollView( // Use SingleChildScrollView for longer content
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(trivia.question, style: TextStyle(fontWeight: FontWeight.bold)),
-            SizedBox(height: 30), // Spacing for better readability
-            // Display each option with added spacing
-            ...List.generate(trivia.options.length, (index) {
-              return Padding(
-                padding: const EdgeInsets.symmetric(vertical: 3.0), // Vertical spacing for options
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.pop(context); // Close trivia dialog
-                    if (index == trivia.correctAnswerIndex) {
-                      // Correct answer logic
-                      showDialog(
-                        context: context,
-                        builder: (context) => AlertDialog(
-                          title: Text("Correct!"),
-                          content: Text("You earned \$1000 MM."),
-                          actions: [
-                            TextButton(
-                              onPressed: () => Navigator.pop(context),
-                              child: Text("OK"),
-                            ),
-                          ],
-                        ),
-                      );
-                      setState(() {
-                        money += 1000; // Reward for correct answer
-                      });
-                    }
-                  },
-                  child: Text(trivia.options[index]),
-                  style: ElevatedButton.styleFrom(
-                    primary: Colors.blueGrey, // Button color
-                    onPrimary: Colors.white, // Text color
-                  ),
-                ),
-              );
-            }),
+    } else {
+      // Show dialog to inform user that they don't have enough money
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Not enough money"),
+          content: Text("You need \$$cost to create this factory."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK"),
+            ),
           ],
         ),
+      );
+    }
+  }
+
+  void createDemand(GameState state) {
+    if (!state.isGameOn || state.money <= 0) return;
+    checkForTrivia(state);
+    setState(() {
+      state.awareness += 1;
+      state.money -= 1; // Capex in Billion USD
+    });
+  }
+
+  void checkForTrivia(GameState state) {
+    if (Random().nextInt(4) == 0) { // 1 in 4 chance
+      showTriviaQuestion(state);
+    }
+  }
+
+  void showTriviaQuestion(GameState state) {
+    var trivia = getRandomTriviaQuestion();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Trivia Question"),
+        content: SingleChildScrollView( // Use SingleChildScrollView for longer content
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(trivia.question, style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 30), // Spacing for better readability
+              // Display each option with added spacing
+              ...List.generate(trivia.options.length, (index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 3.0), // Vertical spacing for options
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close trivia dialog
+                      if (index == trivia.correctAnswerIndex) {
+                        // Correct answer logic
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text("Correct!"),
+                            content: Text("You earned \$1000 MM."),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("OK"),
+                              ),
+                            ],
+                          ),
+                        );
+                        setState(() {
+                          state.money += 10; // Reward for correct answer in Billion USD
+                        });
+                      }
+                    },
+                    child: Text(trivia.options[index]),
+                    style: ElevatedButton.styleFrom(
+                      primary: Colors.blueGrey, // Button color
+                      onPrimary: Colors.white, // Text color
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
       ),
-    ),
-  );
-}
+    );
+  }
 
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-        visualDensity: VisualDensity.adaptivePlatformDensity,
+    GameState state = gameManager.state;
+    return Scaffold(
+      appBar: AppBar(
+        title: Text("Black Death"),
       ),
-      home: Scaffold(
-        appBar: AppBar(
-          title: Text("Black Death"),
-        ),
         body: Container(
           decoration: BoxDecoration(
             image: DecorationImage(
@@ -239,12 +208,12 @@ void showTriviaQuestion() {
                           runSpacing: 8,
                           children: [
                             FactoryButton.CreateButton(
-                              onPressed: () => createSupply("solar"),
+                              onPressed: () => createSupply(state, GameAction.buildSolarFactory),
                               text: "Solar Factory",
                               icon: Icons.solar_power,
                             ),
                             // Show icons for all Solar factories
-                            ...factories.where((factory) => factory.type == "solar").map((factory) => Icon(Icons.solar_power)),
+                            ...List.generate(state.solarProduction.toInt(), (index) => Icon(Icons.solar_power)),
                           ],
                         ),
                         Wrap(
@@ -252,12 +221,12 @@ void showTriviaQuestion() {
                           runSpacing: 8,
                           children: [
                             FactoryButton.CreateButton(
-                              onPressed: () => createSupply("wind"),
+                              onPressed: () => createSupply(state, GameAction.buildWindFactory),
                               text: "Wind Factory",
                               icon: Icons.air,
                             ),
                             // Show icons for all Wind factories
-                            ...factories.where((factory) => factory.type == "wind").map((factory) => Icon(Icons.air)),
+                            ...List.generate(state.windProduction.toInt(), (index) => Icon(Icons.air)),
                           ],
                         ),
                         Wrap(
@@ -265,29 +234,29 @@ void showTriviaQuestion() {
                           runSpacing: 8,
                           children: [
                             FactoryButton.CreateButton(
-                              onPressed: () => createDemand(),
+                              onPressed: () => createDemand(state),
                               text: "Educate Youth",
                               icon: Icons.school,
                             ),
                             // Show education level using school icons
-                            ...List.generate(education, (index) => Icon(Icons.school)),
+                            ...List.generate(state.awareness.toInt(), (index) => Icon(Icons.school)),
                           ],
                         ),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            StatusText(title: "Demand", value: "${demand.round()}", isCritical: supply > demand + 5),
-                            StatusText(title: "Supply", value: "${supply.round()}", isCritical: demand > supply + 5),
+                            StatusText(title: "Demand", value: "${state.renewableDemand().round()}", isCritical: state.renewableSupply() > state.renewableDemand() + 5),
+                            StatusText(title: "Supply", value: "${state.renewableSupply().round()}", isCritical: state.renewableDemand() > state.renewableSupply() + 5),
                           ],
                         ),
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            StatusText(title: "Money", value: "\$${money.toString()} MM", isCritical: money > 1000),
-                            StatusText(title: "CO2 Level", value: "${co2Level.round()} ppm", isCritical: co2Level > upperPointOfNoReturnCo2 - 50),
-                            StatusText(title: "Lapsed Years", value: "$lapsedYears"),
+                            StatusText(title: "Money", value: "\$${state.money.toString()} MM", isCritical: state.money > 1000),
+                            StatusText(title: "CO2 Level", value: "${state.co2Level.round()} ppm", isCritical: state.co2Level > co2LevelMax - 50),
+                            StatusText(title: "Lapsed Years", value: "${state.lapsedYears}"),
                           ],
                         ),
                       ],
@@ -306,9 +275,9 @@ void showTriviaQuestion() {
                     child: LineChart(
                       LineChartData(
                         minX: 0,
-                        maxX: 100,
-                        minY: 100,
-                        maxY: 600,
+                        maxX: 200,
+                        minY: 250,
+                        maxY: 450,
                         gridData: FlGridData(show: true),
                         titlesData: FlTitlesData(
                           bottomTitles: AxisTitles(
@@ -325,7 +294,7 @@ void showTriviaQuestion() {
                           ),
                         ),
 
-                        lineBarsData: _createData(),
+                        lineBarsData: _createData(state),
                       ),
                     ),
                   ),
@@ -334,11 +303,10 @@ void showTriviaQuestion() {
             ],
           ),
         ),
-      ),
     );
   }
 
-  List<LineChartBarData> _createData() {
+  List<LineChartBarData> _createData(GameState state) {
     return [
       LineChartBarData(
         spots: co2Data.map((data) => FlSpot(data.year.toDouble(), data.co2Level)).toList(),
@@ -350,11 +318,11 @@ void showTriviaQuestion() {
   }
 }
 
-class Data {
+class ChartPoint {
   final int year;
   final double co2Level;
 
-  const Data(this.year, this.co2Level);
+  const ChartPoint(this.year, this.co2Level);
 }
 
 
@@ -444,7 +412,7 @@ class StatusText extends StatelessWidget {
     // Use Text widget inside a Card, to display the title and value
     return Card(
       color: isCritical ? Colors.amber : Colors.white,
-      
+
       child: Padding(
         padding: const EdgeInsets.all(8.0),
         child: Column(
