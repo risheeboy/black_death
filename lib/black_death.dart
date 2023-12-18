@@ -8,6 +8,7 @@ import 'game_timer.dart';
 import 'utils.dart';
 //import 'q_learning_agent.dart';
 import 'simple_agent.dart';
+import 'package:marquee/marquee.dart';
 
 import 'package:fl_chart/fl_chart.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -178,7 +179,10 @@ class _BlackDeathAppState extends State<BlackDeath> {
     GameState state = gameManager.state;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Black Death"),
+        title: Text("Black Death", style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+        //change the background color of the app bar and make it semi transparent
+        backgroundColor: Colors.black.withOpacity(0.6),
+        centerTitle: true,
       ),
         body: Container(
           decoration: BoxDecoration(
@@ -191,6 +195,22 @@ class _BlackDeathAppState extends State<BlackDeath> {
           ),
           child: Column(
             children: [
+
+              Container(
+                height: 50,
+                color: Colors.transparent,
+                child: Marquee(
+                  text: "the CO2 level is ${(state.co2Level - co2LevelIdeal).round()} ppm above the ideal level of $co2LevelIdeal ppm",
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20, color: Colors.grey),
+                  scrollAxis: Axis.horizontal,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  blankSpace: 1000.0,
+                  velocity: 100.0,
+                  startPadding: 10.0,
+                  accelerationCurve: Curves.linear,
+                  decelerationCurve: Curves.easeOut,
+                ),
+              ),
               // Actions
               Expanded(
                 child: Card(
