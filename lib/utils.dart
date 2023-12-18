@@ -1,11 +1,12 @@
 import 'package:black_death/game_actions.dart';
 
 // Constants that define the game engine behaviour 
+const double annualBudget = 10; // Budget in billion USD/year. 
+const double annualCarbonCapture = 3; // PPM CO2 reduced due to carbon capture by nature
 const double energyDemand = 160; // Energy demand by humans in PWh/year
-const double annualBudget = 15; // Budget in billion USD/year. 
 const double co2LevelIdeal = 350; 
 const double co2LevelMax = 450; 
-const double annualCarbonCapture = 2; // PPM CO2 reduced due to carbon capture by nature
+//const double co2LevelMin = 250; 
 const double otherRenewableSources = 20; // Energy from other sources like hydro, geothermal etc
 const double awarenessIndependentDemand = 50; // Independent demand, like grid
 const double awarenessDemandFactor = 2; // Factor for calculating renewable demand

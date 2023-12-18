@@ -214,7 +214,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
               // Actions
               Expanded(
                 child: Card(
-                  color: Colors.white.withOpacity(0.6),
+                  color: Colors.white.withOpacity(0.4),
                   elevation: 4,
                   child: Padding(
                     padding: const EdgeInsets.all(8.0),
@@ -262,21 +262,32 @@ class _BlackDeathAppState extends State<BlackDeath> {
                             ...List.generate(state.awareness.toInt(), (index) => Icon(Icons.school)),
                           ],
                         ),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
+                        // add a row. inside the row, add 2 text widgets in a wrap and a button widget
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                           children: [
-                            StatusText(title: "Demand", value: "${state.renewableDemand().round()}", isCritical: state.renewableSupply() > state.renewableDemand() + 5),
-                            StatusText(title: "Supply", value: "${state.renewableSupply().round()}", isCritical: state.renewableDemand() > state.renewableSupply() + 5),
-                          ],
-                        ),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            StatusText(title: "Money", value: "\$${state.money.toString()} MM", isCritical: state.money > 1000),
-                            StatusText(title: "CO2 Level", value: "${state.co2Level.round()} ppm", isCritical: state.co2Level > co2LevelMax - 50),
-                            StatusText(title: "Lapsed Years", value: "${state.lapsedYears}"),
+                            Expanded(
+                              child: Wrap(
+                                spacing: 8,
+                                runSpacing: 8,
+                                children: [
+                                  StatusText(title: "Demand", value: "${state.renewableDemand().round()}", isCritical: state.renewableSupply() > state.renewableDemand() + 5),
+                                  StatusText(title: "Supply", value: "${state.renewableSupply().round()}", isCritical: state.renewableDemand() > state.renewableSupply() + 5),
+                                  StatusText(title: "Money", value: "\$${state.money.toString()} MM", isCritical: state.money > 1000),
+                                  StatusText(title: "CO2 Level", value: "${state.co2Level.round()} ppm", isCritical: state.co2Level > co2LevelMax - 50),
+                                  StatusText(title: "Lapsed Years", value: "${state.lapsedYears}"),
+                                ],
+                              ),
+                            ),
+                            // add a switch widget to enable/diable the agent
+                            Switch(
+                              value: state.isAgentEnabled,
+                              onChanged: (value) {
+                                setState(() {
+                                  state.isAgentEnabled = value;
+                                });
+                              },
+                            ),
                           ],
                         ),
                       ],

@@ -35,9 +35,11 @@ class GameManager {
     print("Year: ${state.lapsedYears}");
     state.money += annualBudget;
     print("Money: ${state.money}");
-    GameAction action = agent.chooseAction(state);
-    print("Action: $action");
-    performAction(action);
+    if(state.isAgentEnabled) {
+      GameAction action = agent.chooseAction(state);
+      print("Action: $action");
+      performAction(action);
+    }
     print("Solar: ${state.solarProduction}");
     print("Wind: ${state.windProduction}");
     print("Awareness: ${state.awareness}");

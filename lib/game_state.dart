@@ -9,6 +9,7 @@ class GameState {
   double awareness; // Million people fully aware of what needs to be done
   double money; // Budget in billion USD/year
   bool isGameOn;
+  bool isAgentEnabled;
 
   GameState({
     this.co2Level = 420,
@@ -18,6 +19,7 @@ class GameState {
     this.awareness = 1,
     this.money = annualBudget,
     this.isGameOn = true,
+    this.isAgentEnabled = false,
   });
 
   double renewableSupply() {
