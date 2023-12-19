@@ -10,6 +10,7 @@ class GameState {
   double money; // Budget in billion USD/year
   bool isGameOn;
   bool isAgentEnabled;
+  double researchLevel;
 
   GameState({
     this.co2Level = 420,
@@ -20,6 +21,7 @@ class GameState {
     this.money = annualBudget,
     this.isGameOn = true,
     this.isAgentEnabled = false,
+    this.researchLevel = 1.0,
   });
 
   double renewableSupply() {

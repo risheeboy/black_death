@@ -58,6 +58,40 @@ class _BlackDeathAppState extends State<BlackDeath> {
     super.dispose();
   }
 
+  void increaseResearch(GameState state) {
+    if (!state.isGameOn) return;
+    // Define the cost for research
+    double researchCost = calculateResearchCost(state);
+    if (state.money >= researchCost) {
+      setState(() {
+        state.researchLevel += 0.1; // Increase research level by 0.1 (or any other logic)
+        state.money -= researchCost; // Deduct the cost
+      });
+    } else {
+      // Show a dialog if not enough money
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Not enough money"),
+          content: Text("You need \$$researchCost to invest in research."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+double calculateResearchCost(GameState state) {
+  // Logic to calculate research cost, potentially based on the current research level
+  return 100 * state.researchLevel; // Example calculation
+}
+
+
+  ScrollController _scrollController = ScrollController();
 
   // Game over dialog
   void _gameOver(String message) {
@@ -76,48 +110,31 @@ class _BlackDeathAppState extends State<BlackDeath> {
     );
   }
 
-  void createSupply(GameState state, GameAction action) {
-    playAudioButton();
-    if (!state.isGameOn) return;
-    checkForTrivia(state);
-    double cost = capitalExpense[action]!;
-    if (cost <= state.money) {
-      setState(() {
-        state.solarProduction += 1;
-        state.money -= cost; // Capex
-      });
-    } else {
-      // Show dialog to inform user that they don't have enough money
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text("Not enough money"),
-          content: Text("You need \$$cost to create this factory."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("OK"),
-            ),
-          ],
-        ),
-      );
-    }
+void createSupply(GameState state, GameAction action) {
+  playAudioButton();
+  if (!state.isGameOn) return;
+  double cost = capitalExpense[action]!;
+  if (cost <= state.money) {
+    setState(() {
+      state.solarProduction += 1;
+      state.money -= cost; // Capex
+    });
+  } else {
+    showTriviaQuestion(state);
   }
+}
 
-  void createDemand(GameState state) {
-    if (!state.isGameOn || state.money <= 0) return;
-    checkForTrivia(state);
+
+void createDemand(GameState state) {
+  if (!state.isGameOn || state.money <= 0) {
+    showTriviaQuestion(state);
+  } else {
     setState(() {
       state.awareness += 1;
       state.money -= 1; // Capex in Billion USD
     });
   }
-
-  void checkForTrivia(GameState state) {
-    if (Random().nextInt(4) == 0) { // 1 in 4 chance
-      showTriviaQuestion(state);
-    }
-  }
+}
 
   void showTriviaQuestion(GameState state) {
     var trivia = getRandomTriviaQuestion();
@@ -160,8 +177,8 @@ class _BlackDeathAppState extends State<BlackDeath> {
                     },
                     child: Text(trivia.options[index]),
                     style: ElevatedButton.styleFrom(
-                      primary: Colors.blueGrey, // Button color
-                      onPrimary: Colors.white, // Text color
+                      foregroundColor: Colors.white, 
+                      backgroundColor: Colors.blueGrey, // Text color
                     ),
                   ),
                 );
@@ -223,44 +240,77 @@ class _BlackDeathAppState extends State<BlackDeath> {
                       mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         // Use Wrap to wrap all the buttons if they don't fit in one line
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            FactoryButton.CreateButton(
-                              onPressed: () => createSupply(state, GameAction.buildSolarFactory),
-                              text: "Solar Factory",
-                              icon: Icons.solar_power,
+                        Scrollbar(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                FactoryButton.CreateButton(
+                                  onPressed: () => createSupply(state, GameAction.buildSolarFactory),
+                                  text: "Solar Factory",
+                                  icon: Icons.solar_power,
+                                ),
+                                // Show icons for all Solar factories
+                                ...List.generate(state.solarProduction.toInt(), (index) => Icon(Icons.solar_power)),
+                              ],
                             ),
-                            // Show icons for all Solar factories
-                            ...List.generate(state.solarProduction.toInt(), (index) => Icon(Icons.solar_power)),
-                          ],
+                          ),
                         ),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            FactoryButton.CreateButton(
-                              onPressed: () => createSupply(state, GameAction.buildWindFactory),
-                              text: "Wind Factory",
-                              icon: Icons.air,
+                        Scrollbar(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                FactoryButton.CreateButton(
+                                  onPressed: () => createSupply(state, GameAction.buildWindFactory),
+                                  text: "Wind Factory",
+                                  icon: Icons.air,
+                                ),
+                                // Show icons for all Wind factories
+                                ...List.generate(state.windProduction.toInt(), (index) => Icon(Icons.air)),
+                              ],
                             ),
-                            // Show icons for all Wind factories
-                            ...List.generate(state.windProduction.toInt(), (index) => Icon(Icons.air)),
-                          ],
+                          ),
                         ),
-                        Wrap(
-                          spacing: 8,
-                          runSpacing: 8,
-                          children: [
-                            FactoryButton.CreateButton(
-                              onPressed: () => createDemand(state),
-                              text: "Educate Youth",
-                              icon: Icons.school,
+                        Scrollbar(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                FactoryButton.CreateButton(
+                                  onPressed: () => createDemand(state),
+                                  text: "Educate Youth",
+                                  icon: Icons.school,
+                                ),
+                                // Show education level using school icons
+                                ...List.generate(state.awareness.toInt(), (index) => Icon(Icons.school)),
+                              ],
                             ),
-                            // Show education level using school icons
-                            ...List.generate(state.awareness.toInt(), (index) => Icon(Icons.school)),
-                          ],
+                          ),
+                        ),
+                        Scrollbar(
+                          child: SingleChildScrollView(
+                            scrollDirection: Axis.horizontal,
+                            child: Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              children: [
+                                FactoryButton.CreateButton(
+                                  onPressed: () => increaseResearch(state),
+                                  text: "Increase Research",
+                                  icon: Icons.lightbulb, // Choose an icon that represents 'research'
+                                ),
+                                // Show icons for all Solar factories
+                                ...List.generate(state.solarProduction.toInt(), (index) => Icon(Icons.solar_power)),
+                              ],
+                            ),
+                          ),
                         ),
                         // add a row. inside the row, add 2 text widgets in a wrap and a button widget
                         Row(
@@ -273,7 +323,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                                 children: [
                                   StatusText(title: "Demand", value: "${state.renewableDemand().round()}", isCritical: state.renewableSupply() > state.renewableDemand() + 5),
                                   StatusText(title: "Supply", value: "${state.renewableSupply().round()}", isCritical: state.renewableDemand() > state.renewableSupply() + 5),
-                                  StatusText(title: "Money", value: "\$${state.money.toString()} MM", isCritical: state.money > 1000),
+                                  StatusText(title: "Money", value: "\$${state.money.toString()} B", isCritical: state.money > 1000),
                                   StatusText(title: "CO2 Level", value: "${state.co2Level.round()} ppm", isCritical: state.co2Level > co2LevelMax - 50),
                                   StatusText(title: "Lapsed Years", value: "${state.lapsedYears}"),
                                 ],
