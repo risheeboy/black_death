@@ -12,7 +12,7 @@ class QLearningAgent {
 
   String _stateToString(GameState state) {
     // String that represents state, that should be used to decide action
-    return '${state.co2Level.round()},${state.supplyShortage().round()}';
+    return '${(state.co2Level/10).round()},${(state.supplyShortage()/10).round()}';
   }
 
   void learn(GameState state, GameAction action, double reward, GameState nextState) {
