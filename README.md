@@ -4,13 +4,17 @@ An educational game built in Flutter about climate change and ways to prevent it
 
 ## Development
 
+Pre-requisites:
+
+- [Flutter](https://flutter.dev/docs/get-started/install)
+
 To run the app in debug mode:
 
     flutter run
 
-## Deployment (Firebase Hosting)
+### Deployment (Firebase Hosting)
 
-First time:
+First deployment:
 
     flutter create --platforms=web .
     flutter build web
@@ -19,7 +23,7 @@ First time:
     firebase init
     firebase deploy
 
-Subsequent times:
+Subsequent deployments:
 
     flutter build web
     firebase deploy
