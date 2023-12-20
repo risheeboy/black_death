@@ -7,6 +7,7 @@ class GameState {
   double solarProduction; // Solar panel and battery production for additional energy in PWh/year
   double windProduction; // Wind turbines and battery production for additional energy in PWh/year
   double awareness; // Million people fully aware of what needs to be done
+  double carbonCapture; // PPM CO2 reduced due to carbon capture by nature
   double money; // Budget in billion USD/year
   bool isGameOn;
   bool isAgentEnabled;
@@ -18,6 +19,7 @@ class GameState {
     this.solarProduction = 2,
     this.windProduction = 1,
     this.awareness = 1,
+    this.carbonCapture = 5,
     this.money = annualBudget,
     this.isGameOn = true,
     this.isAgentEnabled = false,
@@ -30,6 +32,7 @@ class GameState {
       solarProduction = source.solarProduction,
       windProduction = source.windProduction,
       awareness = source.awareness,
+      carbonCapture = source.carbonCapture,
       money = source.money,
       isGameOn = source.isGameOn,
       isAgentEnabled = source.isAgentEnabled,

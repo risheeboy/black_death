@@ -24,9 +24,11 @@ class GameManager {
       state.awareness += availableMoney/capex;
       state.money -= availableMoney;
     } else if(action == GameAction.carbonCapture) {
-      // TODO - Implement carbon capture
+      state.carbonCapture += availableMoney/capex;
+      state.money -= availableMoney;
     } else if(action == GameAction.increaseResearch) {
-      // TODO - Implement increase research
+      state.researchLevel += availableMoney/capex;
+      state.money -= availableMoney;
     } else {
       // Do nothing
     }
@@ -37,8 +39,7 @@ class GameManager {
     state.lapsedYears++;
     print("Year: ${state.lapsedYears}");
     state.money += annualBudget;
-    print("Money: ${state.money}");
-    print("------------");
+    print("Money available: ${state.money}");
     print("Renewable Demand: ${state.renewableDemand()}");
     print("Renewable Supply: ${state.renewableSupply()}");
     print("Supply Shortage: ${state.supplyShortage()}");
@@ -52,11 +53,12 @@ class GameManager {
     print("Solar: ${state.solarProduction}");
     print("Wind: ${state.windProduction}");
     print("Awareness: ${state.awareness}");
-    print("Money: ${state.money}");
-    print("------------");
+    print("Carbon Capture: ${state.carbonCapture}");
+    print("Research Level: ${state.researchLevel}");
+    print("Money after action: ${state.money}");
     print("PPM Added by Fossil Fuels: ${state.ppmAnnualyAddedByFossilFuels()}");
-    print("Annual Carbon Capture: $annualCarbonCapture");
-    double increaseInPpm = state.ppmAnnualyAddedByFossilFuels() - annualCarbonCapture;
+    print("Annual Carbon Capture: ${state.carbonCapture}");
+    double increaseInPpm = state.ppmAnnualyAddedByFossilFuels() - state.carbonCapture;
     state.co2Level += increaseInPpm;
     print("CO2: ${state.co2Level}");
     double reward = -increaseInPpm;

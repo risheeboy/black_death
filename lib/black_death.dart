@@ -245,8 +245,8 @@ class _BlackDeathAppState extends State<BlackDeath> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
+                            spacing: 1,
+                            runSpacing: 1,
                             children: [
                               FactoryButton.CreateButton(
                                 onPressed: () => createSupply(
@@ -254,9 +254,9 @@ class _BlackDeathAppState extends State<BlackDeath> {
                                 text: "Solar Factory",
                                 icon: Icons.solar_power,
                               ),
-                              // Show icons for all Solar factories
+                              // Show icons for Solar production
                               ...List.generate(state.solarProduction.toInt(),
-                                  (index) => Icon(Icons.solar_power)),
+                                  (index) => Icon(Icons.solar_power, size: 18)),
                             ],
                           ),
                         ),
@@ -265,8 +265,8 @@ class _BlackDeathAppState extends State<BlackDeath> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
+                            spacing: 1,
+                            runSpacing: 1,
                             children: [
                               FactoryButton.CreateButton(
                                 onPressed: () => createSupply(
@@ -276,7 +276,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                               ),
                               // Show icons for all Wind factories
                               ...List.generate(state.windProduction.toInt(),
-                                  (index) => Icon(Icons.air)),
+                                  (index) => Icon(Icons.air, size: 18)),
                             ],
                           ),
                         ),
@@ -285,8 +285,8 @@ class _BlackDeathAppState extends State<BlackDeath> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
+                            spacing: 1,
+                            runSpacing: 1,
                             children: [
                               FactoryButton.CreateButton(
                                 onPressed: () => createDemand(state),
@@ -295,7 +295,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                               ),
                               // Show education level using school icons
                               ...List.generate(state.awareness.toInt(),
-                                  (index) => Icon(Icons.school)),
+                                  (index) => Icon(Icons.school, size: 18)),
                             ],
                           ),
                         ),
@@ -304,29 +304,27 @@ class _BlackDeathAppState extends State<BlackDeath> {
                         child: SingleChildScrollView(
                           scrollDirection: Axis.horizontal,
                           child: Wrap(
-                            spacing: 8,
-                            runSpacing: 8,
+                            spacing: 1,
+                            runSpacing: 1,
                             children: [
                               FactoryButton.CreateButton(
                                 onPressed: () => increaseResearch(state),
                                 text: "Increase Research",
-                                icon: Icons.lightbulb,
+                                icon: Icons.science,
                               ),
-                              // Show icons for all Solar factories
-                              ...List.generate(state.solarProduction.toInt(),
-                                  (index) => Icon(Icons.solar_power)),
+                              ...List.generate(state.researchLevel.toInt(),
+                                  (index) => Icon(Icons.science, size: 18)),
                             ],
                           ),
                         ),
                       ),
-                      // add a row. inside the row, add 2 text widgets in a wrap and a button widget
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
                           Expanded(
                             child: Wrap(
-                              spacing: 8,
-                              runSpacing: 8,
+                              spacing: 2,
+                              runSpacing: 2,
                               children: [
                                 StatusText(
                                     title: "Demand",
@@ -381,7 +379,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                     LineChartData(
                       minX: 0,
                       maxX: 200,
-                      minY: 250,
+                      minY: 350,
                       maxY: 450,
                       gridData: FlGridData(show: true),
                       titlesData: FlTitlesData(
