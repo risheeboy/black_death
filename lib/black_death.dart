@@ -6,7 +6,7 @@ import 'game_manager.dart';
 import 'game_state.dart';
 import 'game_timer.dart';
 import 'utils.dart';
-//import 'q_learning_agent.dart';
+import 'q_learning_agent.dart';
 import 'simple_agent.dart';
 import 'package:marquee/marquee.dart';
 
@@ -33,9 +33,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
   void initState() {
     super.initState();
     GameState state = GameState();
-    //QLearningAgent agent = QLearningAgent();
-    SimpleAgent agent = SimpleAgent();
-    gameManager = GameManager(state, agent);
+    gameManager = GameManager(state, SimpleAgent(), QLearningAgent());
     gameTimer = GameTimer(onYearPassed: () {
       setState(() {
         gameManager.updateGameState();

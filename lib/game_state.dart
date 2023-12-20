@@ -24,6 +24,17 @@ class GameState {
     this.researchLevel = 1.0,
   });
 
+  GameState.clone(GameState source)
+    : co2Level = source.co2Level,
+      lapsedYears = source.lapsedYears,
+      solarProduction = source.solarProduction,
+      windProduction = source.windProduction,
+      awareness = source.awareness,
+      money = source.money,
+      isGameOn = source.isGameOn,
+      isAgentEnabled = source.isAgentEnabled,
+      researchLevel = source.researchLevel;
+
   double renewableSupply() {
     return solarProduction + windProduction + otherRenewableSources; 
   }
