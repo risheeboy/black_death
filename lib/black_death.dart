@@ -39,10 +39,10 @@ class _BlackDeathAppState extends State<BlackDeath> {
         gameManager.updateGameState();
         if (state.co2Level > co2LevelMax) {
           _gameOver(
-              "CO2 levels exceeded the point of no return. Earth is doomed.");
+              "CO2 levels exceeded the point of no return. Earth is doomed.", state);
           gameTimer.stop();
-        } else if (state.co2Level < co2LevelIdeal) {
-          _gameOver("CO2 levels dropped. Earth is saved.");
+        } else if (state.co2Level < co2LevelMin) {
+          _gameOver("CO2 levels dropped. Earth is doomed.", state);
           gameTimer.stop();
         }
         co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
@@ -90,11 +90,12 @@ class _BlackDeathAppState extends State<BlackDeath> {
   }
 
   // Game over dialog
-  void _gameOver(String message) {
+  void _gameOver(String message, GameState state) {
+    double money = state.money;
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Game Over"),
+        title: Text("Game Over \n Your score is $money"),
         content: Text(message),
         actions: [
           TextButton(
@@ -379,7 +380,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                     LineChartData(
                       minX: 0,
                       maxX: 200,
-                      minY: 350,
+                      minY: 250,
                       maxY: 450,
                       gridData: FlGridData(show: true),
                       titlesData: FlTitlesData(
