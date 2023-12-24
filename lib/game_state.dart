@@ -11,6 +11,8 @@ class GameState {
   double money; // Budget in billion USD/year
   bool isGameOn;
   bool isAgentEnabled;
+  int consecutiveYearsInRange;
+
   double researchLevel;
 
   GameState({
@@ -24,19 +26,22 @@ class GameState {
     this.isGameOn = true,
     this.isAgentEnabled = false,
     this.researchLevel = 1.0,
+    this.consecutiveYearsInRange = 0,
   });
 
   GameState.clone(GameState source)
-    : co2Level = source.co2Level,
-      lapsedYears = source.lapsedYears,
-      solarProduction = source.solarProduction,
-      windProduction = source.windProduction,
-      awareness = source.awareness,
-      carbonCapture = source.carbonCapture,
-      money = source.money,
-      isGameOn = source.isGameOn,
-      isAgentEnabled = source.isAgentEnabled,
-      researchLevel = source.researchLevel;
+      : co2Level = source.co2Level,
+        lapsedYears = source.lapsedYears,
+        solarProduction = source.solarProduction,
+        windProduction = source.windProduction,
+        awareness = source.awareness,
+        carbonCapture = source.carbonCapture,
+        money = source.money,
+        isGameOn = source.isGameOn,
+        isAgentEnabled = source.isAgentEnabled,
+        researchLevel = source.researchLevel,
+        consecutiveYearsInRange = source.consecutiveYearsInRange;
+
 
   double renewableSupply() {
     return solarProduction + windProduction + otherRenewableSources; 

@@ -5,4 +5,6 @@ enum GameAction {
   educateYouth,
   carbonCapture,
   doNothing,
+  destroySolarFactory,
+  destroyWindFactory,
 }

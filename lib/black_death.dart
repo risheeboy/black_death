@@ -37,13 +37,16 @@ class _BlackDeathAppState extends State<BlackDeath> {
     gameTimer = GameTimer(onYearPassed: () {
       setState(() {
         gameManager.updateGameState();
-        if (state.co2Level > co2LevelMax) {
-          _gameOver(
-              "CO2 levels exceeded the point of no return. Earth is doomed.", state);
-          gameTimer.stop();
-        } else if (state.co2Level < co2LevelMin) {
-          _gameOver("CO2 levels dropped. Earth is doomed.", state);
-          gameTimer.stop();
+        // Check if CO2 level is within the desired range
+        if (state.co2Level >= 340 && state.co2Level <= 360) {
+          state.consecutiveYearsInRange++;
+          if (state.consecutiveYearsInRange == 10) {
+            _gameOver("CO2 levels stabilized for 10 years! You saved the Earth!", state);
+            gameTimer.stop();
+          }
+        } else {
+          // Reset the counter if outside the range
+          state.consecutiveYearsInRange = 0;
         }
         co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
       });
@@ -249,11 +252,20 @@ class _BlackDeathAppState extends State<BlackDeath> {
                             spacing: 1,
                             runSpacing: 1,
                             children: [
-                              FactoryButton.CreateButton(
+                              Text("Solar Production",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: Colors.black)),
+                              IconButton(
                                 onPressed: () => createSupply(
                                     state, GameAction.buildSolarFactory),
-                                text: "Solar Factory",
-                                icon: Icons.solar_power,
+                                icon: Icon(Icons.add, size: 18),
+                              ),
+                              IconButton(
+                                onPressed: () => createSupply(
+                                    state, GameAction.destroySolarFactory),
+                                icon: Icon(Icons.remove, size: 18),
                               ),
                               // Show icons for Solar production
                               ...List.generate(state.solarProduction.toInt(),
@@ -269,15 +281,26 @@ class _BlackDeathAppState extends State<BlackDeath> {
                             spacing: 1,
                             runSpacing: 1,
                             children: [
-                              FactoryButton.CreateButton(
+                              Text("Wind Production",
+                                  style: TextStyle(
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 20,
+                                      color: Colors.black)),
+                            // doing the same thing but for wind factories
+                              IconButton(
                                 onPressed: () => createSupply(
                                     state, GameAction.buildWindFactory),
-                                text: "Wind Factory",
-                                icon: Icons.air,
+                                icon: Icon(Icons.add, size: 18),
                               ),
-                              // Show icons for all Wind factories
+                              IconButton(
+                                onPressed: () => createSupply(
+                                    state, GameAction.destroyWindFactory),
+                                icon: Icon(Icons.remove, size: 18),
+                              ),
+                              // Show icons for Wind production
                               ...List.generate(state.windProduction.toInt(),
-                                  (index) => Icon(Icons.air, size: 18)),
+                                  (index) => Icon(Icons.air, size: 18)),                              
+
                             ],
                           ),
                         ),
@@ -385,10 +408,10 @@ class _BlackDeathAppState extends State<BlackDeath> {
                       gridData: FlGridData(show: true),
                       titlesData: FlTitlesData(
                         bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: true),
+                          sideTitles: SideTitles(showTitles: true, reservedSize: 23),
                         ),
                         leftTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: true),
+                          sideTitles: SideTitles(showTitles: true, reservedSize: 33),
                         ),
                         topTitles: AxisTitles(
                           sideTitles:
