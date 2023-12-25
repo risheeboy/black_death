@@ -43,12 +43,12 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions web = FirebaseOptions(
-    apiKey: "AIzaSyBYhm4s8c8XxSkM4dIgbVeVqE3FMAbzoYs",
-    authDomain: "blackdeath-5bbff.firebaseapp.com",
-    projectId: "blackdeath-5bbff",
-    storageBucket: "blackdeath-5bbff.appspot.com",
-    messagingSenderId: "162976845353",
-    appId: "1:162976845353:web:bb3faa821dd43ffb235638",
-    measurementId: "G-HP6RCHB5K3",
+    apiKey: "<Get from https://console.firebase.google.com/ or FlutterFire>",
+    authDomain: "<firebase-project-id>.firebaseapp.com",
+    projectId: "<firebase-project-id>",
+    storageBucket: "<firebase-project-id>.appspot.com",
+    messagingSenderId: "<Get from https://console.firebase.google.com/ or FlutterFire>",
+    appId: "<Get from https://console.firebase.google.com/ or FlutterFire>",
+    measurementId: "<Get from https://console.firebase.google.com/ or FlutterFire>",
   );
 }
