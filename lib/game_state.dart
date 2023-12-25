@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'run_state.dart';
 import 'utils.dart';
 
 class GameState {
@@ -9,7 +10,7 @@ class GameState {
   double awareness; // Million people fully aware of what needs to be done
   double carbonCapture; // PPM CO2 reduced due to carbon capture by nature
   double money; // Budget in billion USD/year
-  bool isGameOn;
+  RunState runState;
   bool isAgentEnabled;
   int consecutiveYearsInRange;
 
@@ -23,26 +24,29 @@ class GameState {
     this.awareness = 1,
     this.carbonCapture = 5,
     this.money = annualBudget,
-    this.isGameOn = true,
+    this.runState = RunState.Running,
     this.isAgentEnabled = false,
     this.researchLevel = 1.0,
     this.consecutiveYearsInRange = 0,
   });
 
   GameState.clone(GameState source)
-      : co2Level = source.co2Level,
-        lapsedYears = source.lapsedYears,
-        solarProduction = source.solarProduction,
-        windProduction = source.windProduction,
-        awareness = source.awareness,
-        carbonCapture = source.carbonCapture,
-        money = source.money,
-        isGameOn = source.isGameOn,
-        isAgentEnabled = source.isAgentEnabled,
-        researchLevel = source.researchLevel,
-        consecutiveYearsInRange = source.consecutiveYearsInRange;
+    : co2Level = source.co2Level,
+      lapsedYears = source.lapsedYears,
+      solarProduction = source.solarProduction,
+      windProduction = source.windProduction,
+      awareness = source.awareness,
+      carbonCapture = source.carbonCapture,
+      money = source.money,
+      runState = source.runState,
+      isAgentEnabled = source.isAgentEnabled,
+      researchLevel = source.researchLevel,
+      consecutiveYearsInRange = source.consecutiveYearsInRange;
 
 
+  bool isGameOver() {
+    return runState.index > RunState.Paused.index;
+  }
   double renewableSupply() {
     return solarProduction + windProduction + otherRenewableSources; 
   }
@@ -73,4 +77,10 @@ class GameState {
     double addedToAtmosphere = energyFromFossilFuels * fossilFuelCO2Factor; // CO2 in billion metric tons/year 
     return addedToAtmosphere * ppmCO2Factor; // PPM CO2 added to atmosphere
   }
+
+  Map<String, dynamic> toFireStoreDoc() => {
+    'co2Level': co2Level,
+    'renewableSupply': renewableSupply(),
+    'renewableDemand': renewableDemand(),
+  };
 }

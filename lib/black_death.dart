@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:audioplayers/audioplayers.dart';
 import 'package:black_death/game_actions.dart';
+import 'package:black_death/run_state.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:marquee/marquee.dart';
@@ -37,16 +38,9 @@ class _BlackDeathAppState extends State<BlackDeath> {
     gameTimer = GameTimer(onYearPassed: () {
       setState(() {
         gameManager.updateGameState();
-        // Check if CO2 level is within the desired range
-        if (state.co2Level >= 340 && state.co2Level <= 360) {
-          state.consecutiveYearsInRange++;
-          if (state.consecutiveYearsInRange == 10) {
-            _gameOver("CO2 levels stabilized for 10 years! You saved the Earth!", state);
-            gameTimer.stop();
-          }
-        } else {
-          // Reset the counter if outside the range
-          state.consecutiveYearsInRange = 0;
+        if (state.isGameOver()) {
+          _gameOver(state);
+          gameTimer.stop();
         }
         co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
       });
@@ -61,7 +55,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
   }
 
   void increaseResearch(GameState state) {
-    if (!state.isGameOn) return;
+    if (state.runState != RunState.Running) return;
     // Define the cost for research
     double researchCost = calculateResearchCost(state);
     if (state.money >= researchCost) {
@@ -93,8 +87,26 @@ class _BlackDeathAppState extends State<BlackDeath> {
   }
 
   // Game over dialog
-  void _gameOver(String message, GameState state) {
+  void _gameOver(GameState state) {
     double money = state.money;
+    // populate the message based on the run state
+    String message = "";
+    switch (state.runState) {
+      case RunState.LostTooHigh:
+        message = "CO2 levels exceeded the point of no return. Earth is doomed.";
+        break;
+      case RunState.LostTooLow:
+        message = "CO2 levels dropped too low. Earth is doomed.";
+        break;
+      case RunState.LostNotStable:
+        message = "CO2 levels are not stable. Earth is doomed.";
+        break;
+      case RunState.Won:
+        message = "CO2 levels stabilized for 10 years! You saved the Earth!";
+        break;
+      default:
+        message = "Game over";
+    }
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -111,13 +123,32 @@ class _BlackDeathAppState extends State<BlackDeath> {
   }
 
   void createSupply(GameState state, GameAction action) {
+    if (state.runState != RunState.Running) return;
     playAudioButton();
-    if (!state.isGameOn) return;
-    double cost = capitalExpense[action]!;
+    double cost = capitalExpense[action] ?? 0;
     if (cost <= state.money) {
       setState(() {
-        state.solarProduction += 1;
-        state.money -= cost; // Capex
+        switch (action) {
+          case GameAction.buildSolarFactory:
+            state.solarProduction++;
+            state.money -= cost;
+            break;
+          case GameAction.buildWindFactory:
+            state.windProduction++;
+            state.money -= cost;
+            break;
+          case GameAction.destroySolarFactory:
+            if(state.solarProduction > 0)
+              state.solarProduction--;
+            break;
+          case GameAction.destroyWindFactory:
+            if(state.windProduction > 0)
+              state.windProduction--;
+            break;
+          default:
+            // do nothing
+            break;
+        }
       });
     } else {
       showTriviaQuestion(state);
@@ -125,7 +156,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
   }
 
   void createDemand(GameState state) {
-    if (!state.isGameOn || state.money <= 0) {
+    if (state.runState != RunState.Running || state.money <= 0) {
       showTriviaQuestion(state);
     } else {
       setState(() {
