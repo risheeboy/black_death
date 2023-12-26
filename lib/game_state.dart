@@ -83,4 +83,8 @@ class GameState {
     'renewableSupply': renewableSupply(),
     'renewableDemand': renewableDemand(),
   };
+
+  String compressed() {
+    return "${(co2Level/10).round()}_${(renewableDemand()/10).round()}_${(renewableSupply()/10).round()}";
+  }
 }

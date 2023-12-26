@@ -2,14 +2,14 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'game_state.dart';
 import 'game_actions.dart';
 import 'utils.dart';
-import 'q_learning_agent.dart';
+import 'q_agent.dart';
 import 'run_state.dart';
 import 'simple_agent.dart';
 
 class GameManager {
   GameState state;
   SimpleAgent agent;
-  QLearningAgent qagent;
+  QAgent qagent;
 
   final List<_QAction> actions = [];
 
@@ -48,7 +48,7 @@ class GameManager {
     print(" Action: $action");
     if(state.isAgentEnabled)
       performAction(action);
-    GameAction qaction = agent.chooseAction(state);
+    GameAction qaction = qagent.chooseAction(state);
     print("QAction: $qaction");
     print("Solar: ${state.solarProduction} Wind: ${state.windProduction} Awareness: ${state.awareness} Money: ${state.money}");
     print("Carbon Capture: ${state.carbonCapture} Research: ${state.researchLevel}");
