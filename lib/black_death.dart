@@ -26,17 +26,50 @@ class BlackDeath extends StatefulWidget {
   _BlackDeathAppState createState() => _BlackDeathAppState();
 }
 
+class StartScreen extends StatelessWidget {
+  final VoidCallback onStartGame;
+
+  const StartScreen({Key? key, required this.onStartGame}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Text(
+              'Welcome to Black Death!\n\nGame Mechanics: [CO2 Management: The core challenge is to maintain ideal CO2 levels (measured in ppm) by balancing various actions\. \nActions and Decisions: Players can take several actions, such as increasing research, creating supply (solar and wind factories), and educating the youth. Each action influences the game\'s environment and resources. \nResource Management: Players must manage money, which is required to perform actions. Actions like building factories or conducting research cost money. \nResearch and Development: Investing in research can improve the game\'s outcome. It costs money and affects other game elements.]', // Add game mechanics explanation here
+              textAlign: TextAlign.center,
+              style: TextStyle(fontSize: 18),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: onStartGame,
+              child: Text('Start Game'),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
 class _BlackDeathAppState extends State<BlackDeath> {
   late GameManager gameManager;
   late GameTimer gameTimer;
+  bool isGameStarted = false;
 
-  @override
-  void initState() {
-    super.initState();
-    GameState state = GameState();
-    gameManager = GameManager(state, SimpleAgent(), QAgent());
-    gameTimer = GameTimer(onYearPassed: () {
-      setState(() {
+
+
+  void startGame() {
+    setState(() {
+      isGameStarted = true;
+      GameState state = GameState();
+      gameManager = GameManager(state, SimpleAgent(), QAgent());
+      gameTimer = GameTimer(onYearPassed: () {
+        // Timer logic here
+        setState(() {
         gameManager.updateGameState();
         if (state.isGameOver()) {
           _gameOver(state);
@@ -46,183 +79,15 @@ class _BlackDeathAppState extends State<BlackDeath> {
       });
     });
     gameTimer.start();
-  }
-
-  @override
-  void dispose() {
-    gameTimer.stop();
-    super.dispose();
-  }
-
-  void increaseResearch(GameState state) {
-    if (state.runState != RunState.Running) return;
-    // Define the cost for research
-    double researchCost = calculateResearchCost(state);
-    if (state.money >= researchCost) {
-      setState(() {
-        state.researchLevel += 0.1; //TODO define research relationships with others
-        state.money -= researchCost;
-      });
-    } else {
-      // Show a dialog if not enough money
-      showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-          title: Text("Not enough money"),
-          content: Text("You need \$$researchCost to invest in research."),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: Text("OK"),
-            ),
-          ],
-        ),
-      );
-    }
-  }
-
-  double calculateResearchCost(GameState state) {
-    // Logic to calculate research cost, potentially based on the current research level
-    return 100 * state.researchLevel; // Example calculation
-  }
-
-  // Game over dialog
-  void _gameOver(GameState state) {
-    double money = state.money;
-    // populate the message based on the run state
-    String message = "";
-    switch (state.runState) {
-      case RunState.LostTooHigh:
-        message = "CO2 levels exceeded the point of no return. Earth is doomed.";
-        break;
-      case RunState.LostTooLow:
-        message = "CO2 levels dropped too low. Earth is doomed.";
-        break;
-      case RunState.LostNotStable:
-        message = "CO2 levels are not stable. Earth is doomed.";
-        break;
-      case RunState.Won:
-        message = "CO2 levels stabilized for 10 years! You saved the Earth!";
-        break;
-      default:
-        message = "Game over";
-    }
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Game Over \n Your score is $money"),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text("OK"),
-          ),
-        ],
-      ),
-    );
-  }
-
-  void createSupply(GameState state, GameAction action) {
-    if (state.runState != RunState.Running) return;
-    playAudioButton();
-    double cost = capitalExpense[action] ?? 0;
-    if (cost <= state.money) {
-      setState(() {
-        switch (action) {
-          case GameAction.buildSolarFactory:
-            state.solarProduction++;
-            state.money -= cost;
-            break;
-          case GameAction.buildWindFactory:
-            state.windProduction++;
-            state.money -= cost;
-            break;
-          case GameAction.destroySolarFactory:
-            if(state.solarProduction > 0)
-              state.solarProduction--;
-            break;
-          case GameAction.destroyWindFactory:
-            if(state.windProduction > 0)
-              state.windProduction--;
-            break;
-          default:
-            // do nothing
-            break;
-        }
-      });
-    } else {
-      showTriviaQuestion(state);
-    }
-  }
-
-  void createDemand(GameState state) {
-    if (state.runState != RunState.Running || state.money <= 0) {
-      showTriviaQuestion(state);
-    } else {
-      setState(() {
-        state.awareness += 1;
-        state.money -= 1; // Capex in Billion USD
-      });
-    }
-  }
-
-  void showTriviaQuestion(GameState state) {
-    var trivia = getRandomTriviaQuestion();
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text("Trivia Question"),
-        content: SingleChildScrollView(
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(trivia.question,
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 30), 
-              ...List.generate(trivia.options.length, (index) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 3.0), // Vertical spacing for options
-                  child: ElevatedButton(
-                    onPressed: () {
-                      Navigator.pop(context); // Close trivia dialog
-                      if (index == trivia.correctAnswerIndex) {
-                        // Correct answer logic
-                        showDialog(
-                          context: context,
-                          builder: (context) => AlertDialog(
-                            title: Text("Correct!"),
-                            content: Text("You earned \$1000 MM."),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(context),
-                                child: Text("OK"),
-                              ),
-                            ],
-                          ),
-                        );
-                        setState(() {
-                          state.money += 10; // Reward for correct answer in Billion USD
-                        });
-                      }
-                    },
-                    child: Text(trivia.options[index]),
-                    style: ElevatedButton.styleFrom(
-                      foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueGrey, // Text color
-                    ),
-                  ),
-                );
-              }),
-            ],
-          ),
-        ),
-      ),
-    );
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    return isGameStarted ? buildGameScreen() : StartScreen(onStartGame: startGame);
+  }
+
+  Widget buildGameScreen() {
     GameState state = gameManager.state;
     return Scaffold(
       appBar: AppBar(
@@ -463,6 +328,182 @@ class _BlackDeathAppState extends State<BlackDeath> {
         ),
       ),
     );
+
+  }
+
+  @override
+  void dispose() {
+    gameTimer.stop();
+    super.dispose();
+  }
+
+  void increaseResearch(GameState state) {
+    if (state.runState != RunState.Running) return;
+    // Define the cost for research
+    double researchCost = calculateResearchCost(state);
+    if (state.money >= researchCost) {
+      setState(() {
+        state.researchLevel += 0.1; //TODO define research relationships with others
+        state.money -= researchCost;
+      });
+    } else {
+      // Show a dialog if not enough money
+      showDialog(
+        context: context,
+        builder: (context) => AlertDialog(
+          title: Text("Not enough money"),
+          content: Text("You need \$$researchCost to invest in research."),
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.pop(context),
+              child: Text("OK"),
+            ),
+          ],
+        ),
+      );
+    }
+  }
+
+  double calculateResearchCost(GameState state) {
+    // Logic to calculate research cost, potentially based on the current research level
+    return 100 * state.researchLevel; // Example calculation
+  }
+
+  // Game over dialog
+  void _gameOver(GameState state) {
+    double money = state.money;
+    // populate the message based on the run state
+    String message = "";
+    switch (state.runState) {
+      case RunState.LostTooHigh:
+        message = "CO2 levels exceeded the point of no return. Earth is doomed.";
+        break;
+      case RunState.LostTooLow:
+        message = "CO2 levels dropped too low. Earth is doomed.";
+        break;
+      case RunState.LostNotStable:
+        message = "CO2 levels are not stable. Earth is doomed.";
+        break;
+      case RunState.Won:
+        message = "CO2 levels stabilized for 10 years! You saved the Earth!";
+        break;
+      default:
+        message = "Game over";
+    }
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Game Over \n Your score is $money"),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text("OK"),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void createSupply(GameState state, GameAction action) {
+    if (state.runState != RunState.Running) return;
+    playAudioButton();
+    double cost = capitalExpense[action] ?? 0;
+    if (cost <= state.money) {
+      setState(() {
+        switch (action) {
+          case GameAction.buildSolarFactory:
+            state.solarProduction++;
+            state.money -= cost;
+            break;
+          case GameAction.buildWindFactory:
+            state.windProduction++;
+            state.money -= cost;
+            break;
+          case GameAction.destroySolarFactory:
+            if(state.solarProduction > 0)
+              state.solarProduction--;
+            break;
+          case GameAction.destroyWindFactory:
+            if(state.windProduction > 0)
+              state.windProduction--;
+            break;
+          default:
+            // do nothing
+            break;
+        }
+      });
+    } else {
+      showTriviaQuestion(state);
+    }
+  }
+
+  void createDemand(GameState state) {
+    if (state.runState != RunState.Running || state.money <= 0) {
+      showTriviaQuestion(state);
+    } else {
+      setState(() {
+        state.awareness += 1;
+        state.money -= 1; // Capex in Billion USD
+      });
+    }
+  }
+
+  void showTriviaQuestion(GameState state) {
+    var trivia = getRandomTriviaQuestion();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text("Trivia Question"),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Text(trivia.question,
+                  style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 30), 
+              ...List.generate(trivia.options.length, (index) {
+                return Padding(
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 3.0), // Vertical spacing for options
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.pop(context); // Close trivia dialog
+                      if (index == trivia.correctAnswerIndex) {
+                        // Correct answer logic
+                        showDialog(
+                          context: context,
+                          builder: (context) => AlertDialog(
+                            title: Text("Correct!"),
+                            content: Text("You earned \$1000 MM."),
+                            actions: [
+                              TextButton(
+                                onPressed: () => Navigator.pop(context),
+                                child: Text("OK"),
+                              ),
+                            ],
+                          ),
+                        );
+                        setState(() {
+                          state.money += 10; // Reward for correct answer in Billion USD
+                        });
+                      }
+                    },
+                    child: Text(trivia.options[index]),
+                    style: ElevatedButton.styleFrom(
+                      foregroundColor: Colors.white,
+                      backgroundColor: Colors.blueGrey, // Text color
+                    ),
+                  ),
+                );
+              }),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   }
 
   List<LineChartBarData> _createData(GameState state) {
@@ -477,7 +518,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
       ),
     ];
   }
-}
+
 
 class ChartPoint {
   final int year;

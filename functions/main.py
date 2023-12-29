@@ -20,14 +20,16 @@ def qvalues(req: Request) -> Response:
     state = _compressed_state(a.get('onState'))
     next_state = _compressed_state(a.get('nextState'))
     reward = a.get('reward')
+
+    # initialize q_table
     if state not in q_table:
       q_table[state] = {}
     if action not in q_table[state]:
-      q_table[state][action] = 0
+      q_table[state][action] = float('-inf')
     if next_state not in q_table:
       q_table[next_state] = {}
     if action not in q_table[next_state]:
-      q_table[next_state][action] = 0
+      q_table[next_state][action] = float('-inf')
 
     # Q-learning
     old_value = q_table[state][action]
