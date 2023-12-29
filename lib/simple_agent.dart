@@ -17,9 +17,22 @@ class SimpleAgent {
   GameAction chooseAction(GameState state) {
     if(state.ppmAnnualyAddedByFossilFuels() > 0) {
       if(state.supplyShortage() > 0) {
-        return GameAction.buildSolarFactory;
+        if (state.co2Level > 350) {
+          if(state.solarProduction > state.windProduction) {
+            return GameAction.buildWindFactory;
+          } else {
+            return GameAction.buildSolarFactory;
+          }
+          
       } else {
-        return GameAction.educateYouth;
+          if(state.solarProduction > state.windProduction) {
+            return GameAction.destroySolarFactory;
+          } else {
+            return GameAction.destroyWindFactory;
+          }
+        }
+      } else {
+          return GameAction.educateYouth;
       }
     } else return GameAction.doNothing;
   }

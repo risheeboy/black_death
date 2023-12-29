@@ -56,6 +56,9 @@ class StartScreen extends StatelessWidget {
 }
 
 class _BlackDeathAppState extends State<BlackDeath> {
+  bool isGamePaused() {
+  return gameManager.state.isGamePaused;
+  }
   late GameManager gameManager;
   late GameTimer gameTimer;
   bool isGameStarted = false;
@@ -67,20 +70,24 @@ class _BlackDeathAppState extends State<BlackDeath> {
       isGameStarted = true;
       GameState state = GameState();
       gameManager = GameManager(state, SimpleAgent(), QAgent());
-      gameTimer = GameTimer(onYearPassed: () {
-        // Timer logic here
-        setState(() {
-        gameManager.updateGameState();
-        if (state.isGameOver()) {
-          _gameOver(state);
-          gameTimer.stop();
-        }
-        co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
-      });
-    });
-    gameTimer.start();
+      gameTimer = GameTimer(
+        onYearPassed: () {
+          // Timer logic here
+          setState(() {
+            gameManager.updateGameState();
+            if (state.isGameOver()) {
+              _gameOver(state);
+              gameTimer.stop();
+            }
+            co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
+          });
+        },
+        isGamePaused: isGamePaused, // Pass the pause check method
+      );
+      gameTimer.start();
     });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -91,13 +98,21 @@ class _BlackDeathAppState extends State<BlackDeath> {
     GameState state = gameManager.state;
     return Scaffold(
       appBar: AppBar(
-        title: Text("Black Death",
-            style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
-            textAlign: TextAlign.center),
-        //change the background color of the app bar and make it semi transparent
-        backgroundColor: Colors.black.withOpacity(0.6),
-        centerTitle: true,
-      ),
+            title: Text("Black Death",
+                style: TextStyle(color: Colors.orange)),
+      backgroundColor: Colors.black,
+      elevation: 0.0,
+      shadowColor: Colors.grey[800],
+      actions: <Widget>[
+        IconButton(
+          icon: Icon(Icons.brightness_2),
+          color: Colors.orange,
+          onPressed: () {
+            // Handle button press
+          },
+        ),
+      ],
+    ),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
@@ -153,12 +168,12 @@ class _BlackDeathAppState extends State<BlackDeath> {
                                       fontWeight: FontWeight.bold,
                                       fontSize: 20,
                                       color: Colors.black)),
-                              IconButton(
+                              IconButton.filledTonal(
                                 onPressed: () => createSupply(
                                     state, GameAction.buildSolarFactory),
                                 icon: Icon(Icons.add, size: 18),
                               ),
-                              IconButton(
+                              IconButton.filledTonal(
                                 onPressed: () => createSupply(
                                     state, GameAction.destroySolarFactory),
                                 icon: Icon(Icons.remove, size: 18),
@@ -183,12 +198,12 @@ class _BlackDeathAppState extends State<BlackDeath> {
                                       fontSize: 20,
                                       color: Colors.black)),
                             // doing the same thing but for wind factories
-                              IconButton(
+                              IconButton.filledTonal(
                                 onPressed: () => createSupply(
                                     state, GameAction.buildWindFactory),
                                 icon: Icon(Icons.add, size: 18),
                               ),
-                              IconButton(
+                              IconButton.filledTonal(
                                 onPressed: () => createSupply(
                                     state, GameAction.destroyWindFactory),
                                 icon: Icon(Icons.remove, size: 18),
@@ -459,17 +474,15 @@ class _BlackDeathAppState extends State<BlackDeath> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              Text(trivia.question,
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              SizedBox(height: 30), 
+              Text(trivia.question, style: TextStyle(fontWeight: FontWeight.bold)),
+              SizedBox(height: 30),
               ...List.generate(trivia.options.length, (index) {
                 return Padding(
-                  padding: const EdgeInsets.symmetric(
-                      vertical: 3.0), // Vertical spacing for options
+                  padding: const EdgeInsets.symmetric(vertical: 3.0),
                   child: ElevatedButton(
                     onPressed: () {
                       Navigator.pop(context); // Close trivia dialog
-                      if (index == trivia.correctAnswerIndex) {
+                    if (index == trivia.correctAnswerIndex) {
                         // Correct answer logic
                         showDialog(
                           context: context,
@@ -485,14 +498,14 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           ),
                         );
                         setState(() {
-                          state.money += 10; // Reward for correct answer in Billion USD
+                          state.isGamePaused = false; // Resume the game
                         });
-                      }
+                      }// Additional logic for correct/incorrect answer
                     },
                     child: Text(trivia.options[index]),
                     style: ElevatedButton.styleFrom(
                       foregroundColor: Colors.white,
-                      backgroundColor: Colors.blueGrey, // Text color
+                      backgroundColor: Colors.blueGrey,
                     ),
                   ),
                 );
@@ -503,6 +516,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
       ),
     );
   }
+
 
   }
 
