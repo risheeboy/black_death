@@ -19,7 +19,7 @@ class QAgent {
         print("Best action by QValue, for state $state is $actionName");
         return GameAction.values.byName(actionName);
       } else {
-        print('No QValue found with state $state');
+        print('No QValue found with state ${state.compressed()}');
       }
     });
     return GameAction.values[Random().nextInt(GameAction.values.length)];

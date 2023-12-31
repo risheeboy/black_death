@@ -13,9 +13,8 @@ class GameState {
   RunState runState;
   bool isAgentEnabled;
   int consecutiveYearsInRange;
-
-
   double researchLevel;
+  double lastPpmIncrease;
 
   GameState({
     this.co2Level = 420,
@@ -23,12 +22,13 @@ class GameState {
     this.solarProduction = 2,
     this.windProduction = 1,
     this.awareness = 1,
-    this.carbonCapture = 5,
+    this.carbonCapture = 6,
     this.money = annualBudget,
     this.runState = RunState.Running,
     this.isAgentEnabled = false,
     this.researchLevel = 1.0,
     this.consecutiveYearsInRange = 0,
+    this.lastPpmIncrease = 0,
   });
 
   GameState.clone(GameState source)
@@ -42,7 +42,8 @@ class GameState {
       runState = source.runState,
       isAgentEnabled = source.isAgentEnabled,
       researchLevel = source.researchLevel,
-      consecutiveYearsInRange = source.consecutiveYearsInRange;
+      consecutiveYearsInRange = source.consecutiveYearsInRange,
+      lastPpmIncrease = source.lastPpmIncrease;
 
 
   bool isGameOver() {

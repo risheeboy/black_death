@@ -18,7 +18,8 @@ class GameManager {
   void performAction(GameAction action) {
     double availableMoney = state.money;
     double capex = capitalExpense[action] ?? 0;
-    if(action == GameAction.buildSolarFactory) {
+
+    if(action == GameAction.buildSolarFactory) { 
       state.solarProduction += availableMoney/capex;
       state.money -= availableMoney;
     } else if(action == GameAction.buildWindFactory) {
@@ -33,6 +34,10 @@ class GameManager {
     } else if(action == GameAction.increaseResearch) {
       state.researchLevel += availableMoney/capex;
       state.money -= availableMoney;
+    } else if(action == GameAction.destroySolarFactory) {
+      state.solarProduction = 0;
+    } else if(action == GameAction.destroyWindFactory) {
+      state.windProduction = 0;
     } else {
       // Do nothing
     }
@@ -67,6 +72,7 @@ class GameManager {
     }
 
     double increaseInPpm = state.ppmAnnualyAddedByFossilFuels() - state.carbonCapture;
+    state.lastPpmIncrease = increaseInPpm;
     state.co2Level += increaseInPpm;
     double reward = -increaseInPpm;
     print("CO2: ${state.co2Level} Reward: $reward");

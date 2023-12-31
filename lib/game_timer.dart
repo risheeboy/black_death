@@ -3,10 +3,9 @@ typedef PauseCheckCallback = bool Function();
 
 class GameTimer {
   final YearCallback onYearPassed;
-  final PauseCheckCallback isGamePaused;
   bool _isActive = false;
 
-  GameTimer({required this.onYearPassed, required this.isGamePaused});
+  GameTimer({required this.onYearPassed});
 
   void start() {
     _isActive = true;
@@ -20,9 +19,7 @@ class GameTimer {
   void _tick() {
     if (!_isActive) return;
     Future.delayed(Duration(seconds: 1), () {
-      if (!isGamePaused()) {
         onYearPassed();
-      }
       _tick();
     });
   }
