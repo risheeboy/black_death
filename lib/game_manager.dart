@@ -17,7 +17,7 @@ class GameManager {
 
   void performAction(GameAction action) {
     double availableMoney = state.money;
-    double capex = capitalExpense[action]!;
+    double capex = capitalExpense[action] ?? 0;
     if(action == GameAction.buildSolarFactory) {
       state.solarProduction += availableMoney/capex;
       state.money -= availableMoney;

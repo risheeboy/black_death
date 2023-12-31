@@ -39,3 +39,4 @@ firebase-debug.log
 functions/venv/
 functions/__pycache__/
 lib/firebase_options.dart
+devtools_options.yaml

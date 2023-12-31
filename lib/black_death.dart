@@ -57,7 +57,7 @@ class StartScreen extends StatelessWidget {
 
 class _BlackDeathAppState extends State<BlackDeath> {
   bool isGamePaused() {
-  return gameManager.state.isGamePaused;
+  return gameManager.state.runState == RunState.Paused;
   }
   late GameManager gameManager;
   late GameTimer gameTimer;
@@ -498,7 +498,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           ),
                         );
                         setState(() {
-                          state.isGamePaused = false; // Resume the game
+                          state.runState = RunState.Running; // Resume the game
                         });
                       }// Additional logic for correct/incorrect answer
                     },
@@ -600,7 +600,7 @@ List<TriviaQuestion> triviaQuestions = [
       ["Melting glaciers", "Deforestation", "Urbanization", "Desertification"],
       0),
   TriviaQuestion("Which of the following is not a greenhouse gas?",
-      ["Carbon dioxide", "Methane", "Nitrous oxide", "water vapour"], 3),
+      ["Carbon dioxide", "Methane", "Nitrous oxide", "water vapour"], 2),
   TriviaQuestion(
       "What percentage of the global greenhouse gas emissions does the transportation sector emit?",
       ["10%", "20%", "33%", "70%"],

@@ -1,5 +1,3 @@
-import 'package:flutter/material.dart';
-
 import 'game_state.dart';
 import 'game_actions.dart';
 import 'dart:async';
@@ -18,7 +16,7 @@ class SimpleAgent {
     if(state.ppmAnnualyAddedByFossilFuels() > 0) {
       if(state.supplyShortage() > 0) {
         if (state.co2Level > 350) {
-          if(state.solarProduction > state.windProduction) {
+          if(state.solarProduction < state.windProduction) {
             return GameAction.buildWindFactory;
           } else {
             return GameAction.buildSolarFactory;

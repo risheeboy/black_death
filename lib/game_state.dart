@@ -13,14 +13,12 @@ class GameState {
   RunState runState;
   bool isAgentEnabled;
   int consecutiveYearsInRange;
-  bool isGamePaused;
 
 
   double researchLevel;
 
   GameState({
     this.co2Level = 420,
-    this.isGamePaused = false,
     this.lapsedYears = 0,
     this.solarProduction = 2,
     this.windProduction = 1,
@@ -42,7 +40,6 @@ class GameState {
       carbonCapture = source.carbonCapture,
       money = source.money,
       runState = source.runState,
-      isGamePaused = source.isGamePaused,
       isAgentEnabled = source.isAgentEnabled,
       researchLevel = source.researchLevel,
       consecutiveYearsInRange = source.consecutiveYearsInRange;
