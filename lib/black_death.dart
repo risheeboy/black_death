@@ -82,7 +82,6 @@ class _BlackDeathAppState extends State<BlackDeath> {
             co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
           });
         },
-        isGamePaused: isGamePaused, // Pass the pause check method
       );
       gameTimer.start();
     });
