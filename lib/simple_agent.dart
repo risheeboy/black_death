@@ -6,14 +6,7 @@ import 'game_state.dart';
 import 'utils.dart';
 
 class SimpleAgent {
-  Timer? timer;
 
-  void start() {
-    timer = Timer.periodic(
-      Duration(milliseconds: 200), // 1000 milliseconds divided by 5 gives us 200 milliseconds, which is 5 times per second
-      (Timer t) => chooseAction(GameState()),
-    );
-  }
   GameAction chooseAction(GameState state) {
     double ppmToChange = co2LevelIdeal - state.co2Level;
     print("PPM to change: $ppmToChange");
@@ -42,8 +35,5 @@ class SimpleAgent {
   // function to pick one of the given list of actions randomly
   GameAction pickRandomAction(List<GameAction> actions) {
     return actions[Random().nextInt(actions.length)];
-  }
-  void stop() {
-    timer?.cancel();
   }
 }

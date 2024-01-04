@@ -22,9 +22,6 @@ class GameManager {
     if(action == GameAction.buildSolarFactory) { 
       state.solarProduction += availableMoney/capex;
       state.money -= availableMoney;
-    } else if(action == GameAction.buildWindFactory) {
-      state.windProduction += availableMoney/capex;
-      state.money -= availableMoney;
     } else if(action == GameAction.educateYouth) {
       state.awareness += availableMoney/capex;
       state.money -= availableMoney;
@@ -36,8 +33,6 @@ class GameManager {
       state.money -= availableMoney;
     } else if(action == GameAction.destroySolarFactory) {
       state.solarProduction = 0;
-    } else if(action == GameAction.destroyWindFactory) {
-      state.windProduction = 0;
     } else {
       // Do nothing
     }
@@ -55,7 +50,7 @@ class GameManager {
       performAction(action);
     GameAction qaction = qagent.chooseAction(state);
     print("QAction: $qaction");
-    print("Solar: ${state.solarProduction} Wind: ${state.windProduction} Awareness: ${state.awareness} Money: ${state.money}");
+    print("Solar: ${state.solarProduction} Awareness: ${state.awareness} Money: ${state.money}");
     print("Carbon Capture: ${state.carbonCapture} Research: ${state.researchLevel}");
     print("PPM Added: ${state.ppmAnnualyAddedByFossilFuels()} Carbon Capture: ${state.carbonCapture}");
     if (state.co2Level > co2LevelMax) {

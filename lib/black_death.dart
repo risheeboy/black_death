@@ -5,6 +5,7 @@ import 'package:black_death/game_actions.dart';
 import 'package:black_death/run_state.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
+import 'package:percent_indicator/percent_indicator.dart';
 import 'package:marquee/marquee.dart';
 
 import 'game_manager.dart';
@@ -82,7 +83,6 @@ class _BlackDeathAppState extends State<BlackDeath> {
             co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
           });
         },
-        isGamePaused: isGamePaused, // Pass the pause check method
       );
       gameTimer.start();
     });
@@ -97,247 +97,511 @@ class _BlackDeathAppState extends State<BlackDeath> {
   Widget buildGameScreen() {
     GameState state = gameManager.state;
     return Scaffold(
+      backgroundColor: Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-            title: Text("Black Death",
-                style: TextStyle(color: Colors.orange)),
-      backgroundColor: Colors.black,
-      elevation: 0.0,
-      shadowColor: Colors.grey[800],
-      actions: <Widget>[
-        IconButton(
-          icon: Icon(Icons.brightness_2),
-          color: Colors.orange,
-          onPressed: () {
-            // Handle button press
-          },
-        ),
-      ],
-    ),
-      body: Container(
-        decoration: BoxDecoration(
-          image: DecorationImage(
-            image: AssetImage("images/earth_smoke.png"),
-            fit: BoxFit.cover,
-            // transparancy of the image
-            colorFilter: ColorFilter.mode(
-                Colors.white.withOpacity(0.2), BlendMode.dstATop),
-          ),
-        ),
-        child: Column(
+        backgroundColor: Color.fromARGB(255, 75, 57, 239),
+        automaticallyImplyLeading: false,
+        title: Row(
+          mainAxisSize: MainAxisSize.max,
+          mainAxisAlignment: MainAxisAlignment.start,
           children: [
-            Container(
-              height: 50,
-              color: Colors.transparent,
-              child: Marquee(
-                text:
-                    "the CO2 level is ${(state.co2Level - co2LevelIdeal).round()} ppm above the ideal level of $co2LevelIdeal ppm",
+            Expanded(
+              child: Text(
+                '🗲 Black Death 🗲',
+                textAlign: TextAlign.start,
                 style: TextStyle(
-                    fontWeight: FontWeight.bold,
-                    fontSize: 20,
-                    color: Colors.grey),
-                scrollAxis: Axis.horizontal,
-                crossAxisAlignment: CrossAxisAlignment.start,
-                blankSpace: 1000.0,
-                velocity: 100.0,
-                startPadding: 10.0,
-                accelerationCurve: Curves.linear,
-                decelerationCurve: Curves.easeOut,
+                      fontFamily: 'Outfit',
+                      color: Colors.white,
+                      fontSize: 22,
+                    ),
               ),
             ),
-            // Actions
-            Expanded(
-              child: Card(
-                color: Colors.white.withOpacity(0.4),
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: [
-                      // Use Wrap to wrap all the buttons if they don't fit in one line
-                      Scrollbar(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Wrap(
-                            spacing: 1,
-                            runSpacing: 1,
-                            children: [
-                              Text("Solar Production",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                      color: Colors.black)),
-                              IconButton.filledTonal(
-                                onPressed: () => createSupply(
-                                    state, GameAction.buildSolarFactory),
-                                icon: Icon(Icons.add, size: 18),
-                              ),
-                              IconButton.filledTonal(
-                                onPressed: () => createSupply(
-                                    state, GameAction.destroySolarFactory),
-                                icon: Icon(Icons.remove, size: 18),
-                              ),
-                              // Show icons for Solar production
-                              ...List.generate(state.solarProduction.toInt(),
-                                  (index) => Icon(Icons.solar_power, size: 18)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Scrollbar(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Wrap(
-                            spacing: 1,
-                            runSpacing: 1,
-                            children: [
-                              Text("Wind Production",
-                                  style: TextStyle(
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 20,
-                                      color: Colors.black)),
-                            // doing the same thing but for wind factories
-                              IconButton.filledTonal(
-                                onPressed: () => createSupply(
-                                    state, GameAction.buildWindFactory),
-                                icon: Icon(Icons.add, size: 18),
-                              ),
-                              IconButton.filledTonal(
-                                onPressed: () => createSupply(
-                                    state, GameAction.destroyWindFactory),
-                                icon: Icon(Icons.remove, size: 18),
-                              ),
-                              // Show icons for Wind production
-                              ...List.generate(state.windProduction.toInt(),
-                                  (index) => Icon(Icons.air, size: 18)),                              
+            Icon(
+              Icons.smart_toy,
+              color: Color(0xFF858585),
+              size: 35,
+            ),
 
-                            ],
-                          ),
+          ],
+        ),
+        actions: [],
+        centerTitle: false,
+        elevation: 5,
+      ),
+      body: SafeArea(
+        top: true,
+        child: Column(
+          mainAxisSize: MainAxisSize.max,
+          children: [
+            Wrap(
+              spacing: 0,
+              runSpacing: 0,
+              alignment: WrapAlignment.start,
+              crossAxisAlignment: WrapCrossAlignment.start,
+              direction: Axis.horizontal,
+              runAlignment: WrapAlignment.start,
+              verticalDirection: VerticalDirection.down,
+              clipBehavior: Clip.none,
+              children: [
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.solar_power_rounded,
+                        color: Color.fromARGB(255, 149, 161, 172),
+                        size: 24,
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                        child: Text(
+                          'Renewable energy production',
+                          style: TextStyle(  fontSize: 14),
                         ),
                       ),
-                      Scrollbar(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Wrap(
-                            spacing: 1,
-                            runSpacing: 1,
-                            children: [
-                              FactoryButton.CreateButton(
-                                onPressed: () => createDemand(state),
-                                text: "Educate Youth",
-                                icon: Icons.school,
+                      IconButton.filledTonal(
+                        color: Color.fromARGB(255, 75, 57, 239),
+                        icon: Icon(
+                          Icons.remove,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          size: 15,
+                        ),
+                        onPressed: () {
+                            () => createSupply(
+                            state, GameAction.destroySolarFactory);
+                        },
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                        child: Text(
+                          state.solarProduction.toString(),
+                          style: TextStyle(fontSize: 14),
+                        ),
+                      ),
+                      IconButton.filledTonal(
+                        color: Color.fromARGB(255, 75, 57, 239),
+                        icon: Icon(
+                          Icons.add,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          size: 15,
+                        ),
+                        onPressed: () => createSupply(
+                          state, GameAction.buildSolarFactory),
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.factory_rounded,
+                        color: Color.fromARGB(255, 149, 161, 172),
+                        size: 24,
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                        child: Text(
+                          'Fossil fuel usage',
+                          style: TextStyle(  fontSize: 14),
+                        ),
+                      ),
+                      IconButton.filledTonal(
+                        color: Color.fromARGB(255, 75, 57, 239),
+                        icon: Icon(
+                          Icons.remove,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          size: 15,
+                        ),
+                        onPressed: () => state.fossilFuelProduction -= 1, 
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                        child: Text(
+                          state.fossilFuelProduction.toString(),
+                          style: TextStyle(  fontSize: 14),
+                        ),
+                      ),
+                      IconButton.filledTonal(
+                        color: Color.fromARGB(255, 75, 57, 239),
+                        icon: Icon(
+                          Icons.add,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          size: 15,
+                        ),
+                        onPressed: () => state.fossilFuelProduction += 1,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.school_outlined,
+                        color: Color.fromARGB(255, 149, 161, 172),
+                        size: 24,
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 12, 0),
+                        child: Text(
+                          'Climate Education Budget',
+                          style: TextStyle(  fontSize: 14),
+                        ),
+                      ),
+                      IconButton.filledTonal(
+                        color: Color.fromARGB(255, 75, 57, 239),
+                        icon: Icon(
+                          Icons.remove,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          size: 15,
+                        ),
+                        onPressed: () => state.education_budget -= 10,
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                        child: Text(
+                          state.education_budget.toString(),
+                          style: TextStyle(  fontSize: 14),
+                        ),
+                      ),
+                      IconButton.filledTonal(
+                        color: Color.fromARGB(255, 75, 57, 239),
+                        icon: Icon(
+                          Icons.add,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          size: 15,
+                        ),
+                        onPressed: () => state.education_budget += 10,
+                      ),
+                    ],
+                  ),
+                ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Icon(
+                        Icons.science_outlined,
+                        color: Color.fromARGB(255, 149, 161, 172),
+                        size: 24,
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 12, 0),
+                        child: Text(
+                          'Climate Research',
+                          style: TextStyle(  fontSize: 14),
+                        ),
+                      ),
+                      Padding(
+                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                        child: Text(
+                          '4',
+                          style: TextStyle(  fontSize: 14),
+                        ),
+                      ),
+                      IconButton.filledTonal(
+                        color: Color.fromARGB(255, 75, 57, 239),
+                        icon: Icon(
+                          Icons.add,
+                          color: Color.fromARGB(255, 255, 255, 255),
+                          size: 15,
+                        ),
+                        onPressed: () {
+                          print('IconButton pressed ...');
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+            Divider(
+              thickness: 1,
+              color: Color.fromARGB(204, 255, 255, 255),
+            ),
+            Align(
+              alignment: AlignmentDirectional(0, 0),
+              child: Card(
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                color: Color.fromARGB(255, 254, 255, 255),
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Align(
+                  alignment: AlignmentDirectional(0, 0),
+                  child: Wrap(
+                    spacing: 0,
+                    runSpacing: 0,
+                    alignment: WrapAlignment.start,
+                    crossAxisAlignment: WrapCrossAlignment.start,
+                    direction: Axis.horizontal,
+                    runAlignment: WrapAlignment.start,
+                    verticalDirection: VerticalDirection.down,
+                    clipBehavior: Clip.none,
+                    children: [
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Icon(
+                                Icons.co2,
+                                color: Color.fromARGB(255, 149, 161, 172),
+                                size: 24,
                               ),
-                              // Show education level using school icons
-                              ...List.generate(state.awareness.toInt(),
-                                  (index) => Icon(Icons.school, size: 18)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Scrollbar(
-                        child: SingleChildScrollView(
-                          scrollDirection: Axis.horizontal,
-                          child: Wrap(
-                            spacing: 1,
-                            runSpacing: 1,
-                            children: [
-                              FactoryButton.CreateButton(
-                                onPressed: () => increaseResearch(state),
-                                text: "Increase Research",
-                                icon: Icons.science,
-                              ),
-                              ...List.generate(state.researchLevel.toInt(),
-                                  (index) => Icon(Icons.science, size: 18)),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          Expanded(
-                            child: Wrap(
-                              spacing: 2,
-                              runSpacing: 2,
-                              children: [
-                                StatusText(
-                                    title: "Demand",
-                                    value: "${state.renewableDemand().round()}",
-                                    isCritical: state.renewableSupply() >
-                                        state.renewableDemand() + 5),
-                                StatusText(
-                                    title: "Supply",
-                                    value: "${state.renewableSupply().round()}",
-                                    isCritical: state.renewableDemand() >
-                                        state.renewableSupply() + 5),
-                                StatusText(
-                                    title: "Money",
-                                    value: "\$${state.money.toString()} B",
-                                    isCritical: state.money > 1000),
-                                StatusText(
-                                    title: "CO2 Level",
-                                    value: "${state.co2Level.round()} ppm",
-                                    isCritical:
-                                        state.co2Level > co2LevelMax - 50),
-                                StatusText(
-                                    title: "Lapsed Years",
-                                    value: "${state.lapsedYears}"),
-                              ],
                             ),
-                          ),
-                          // add a switch widget to enable/diable the agent
-                          Switch(
-                            value: state.isAgentEnabled,
-                            onChanged: (value) {
-                              setState(() {
-                                state.isAgentEnabled = value;
-                              });
-                            },
-                          ),
-                        ],
+                            Text(
+                              state.co2Level.round().toString(),
+                              style: TextStyle(fontSize: 14),
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Text(
+                                'PPm',
+                                style:
+                                    TextStyle(fontSize: 14),
+                              ),
+                            ),
+                            LinearPercentIndicator(
+                              percent: state.co2Level/(co2LevelMax+10),
+                              width: 80,
+                              lineHeight: 6,
+                              animation: true,
+                              animateFromLastPercent: true,
+                              progressColor: Color(0xFF02AB00),
+                              backgroundColor: Color.fromARGB(181, 255, 255, 255),
+                              padding: EdgeInsets.zero,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Icon(
+                                Icons.timer_sharp,
+                                color: Color.fromARGB(255, 149, 161, 172),
+                                size: 24,
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Text(
+                                'Year',
+                                style:
+                                    TextStyle(  fontSize: 14),
+                              ),
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Text(
+                                state.lapsedYears.toString(),
+                                style:
+                                    TextStyle(  fontSize: 14),
+                              ),
+                            ),
+                            LinearPercentIndicator(
+                              percent: state.lapsedYears/yearsToWin,
+                              width: 80,
+                              lineHeight: 6,
+                              animation: true,
+                              animateFromLastPercent: true,
+                              progressColor: Color(0xFF02AB00),
+                              backgroundColor: Color(0xB5ADADAD),
+                              padding: EdgeInsets.zero,
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Icon(
+                                Icons.solar_power_rounded,
+                                color: Color.fromARGB(255, 149, 161, 172),
+                                size: 24,
+                              ),
+                            ),
+                            LinearPercentIndicator(
+                              percent: state.solarProduction/(state.solarProduction + state.fossilFuelProduction),
+                              width: 80,
+                              lineHeight: 6,
+                              animation: true,
+                              animateFromLastPercent: true,
+                              progressColor: Color(0xFF02AB00),
+                              backgroundColor: Color(0xB5ADADAD),
+                              padding: EdgeInsets.zero,
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                              child: Icon(
+                                Icons.factory_rounded,
+                                color: Color.fromARGB(255, 149, 161, 172),
+                                size: 24,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.max,
+                          children: [
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Text(
+                                'Budget',
+                                style:
+                                    TextStyle(  fontSize: 14),
+                              ),
+                            ),
+                            Icon(
+                              Icons.attach_money_sharp,
+                              color:
+                                  Color.fromARGB(255, 149, 161, 172),
+                              size: 20,
+                            ),
+                            Text(
+                              '15',
+                              style: TextStyle(  fontSize: 14),
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Text(
+                                'B',
+                                style:
+                                    TextStyle(  fontSize: 14),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.electrical_services,
+                              color:
+                                Color.fromARGB(255, 149, 161, 172),
+                              size: 20,
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Text(
+                                'Demand',
+                                style:
+                                    TextStyle(  fontSize: 14),
+                              ),
+                            ),
+                            Text(
+                              state.renewableDemand().toString(),
+                              style: TextStyle(  fontSize: 14),
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Text(
+                                'TWh',
+                                style:
+                                    TextStyle(  fontSize: 14),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Padding(
+                        padding:
+                            EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.energy_savings_leaf_outlined,
+                              color:
+                                Color.fromARGB(255, 149, 161, 172),
+                              size: 20,
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Text(
+                                'Supply',
+                                style:
+                                    TextStyle(  fontSize: 14),
+                              ),
+                            ),
+                            Text(
+                              state.renewableSupply().toString(),
+                              style: TextStyle(  fontSize: 14),
+                            ),
+                            Padding(
+                              padding:
+                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
+                              child: Text(
+                                'TWh',
+                                style:
+                                    TextStyle(  fontSize: 14),
+                              ),
+                            ),
+                          ],
+                        ),
                       ),
                     ],
                   ),
                 ),
               ),
             ),
-
-            // Chart
-            Expanded(
-              child: Card(
-                color: Colors.white.withOpacity(0.4),
-                elevation: 4,
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: LineChart(
-                    LineChartData(
-                      minX: 0,
-                      maxX: 200,
-                      minY: 250,
-                      maxY: 450,
-                      gridData: FlGridData(show: true),
-                      titlesData: FlTitlesData(
-                        bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: true, reservedSize: 23),
-                        ),
-                        leftTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: true, reservedSize: 33),
-                        ),
-                        topTitles: AxisTitles(
-                          sideTitles:
-                              SideTitles(showTitles: false), // Hide top titles
-                        ),
-                        rightTitles: AxisTitles(
-                          sideTitles: SideTitles(
-                              showTitles: false), // Hide right titles
-                        ),
-                      ),
-                      lineBarsData: _createData(state),
-                    ),
+            Divider(
+              thickness: 1,
+              color: Color.fromARGB(204, 255, 255, 255),
+            ),
+            Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Transform.rotate(
+                  angle: 4.7124,
+                  child: Text(
+                    'Hello World',
+                    style: TextStyle(  fontSize: 14),
                   ),
                 ),
-              ),
+              ],
             ),
           ],
         ),
@@ -421,6 +685,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
   }
 
   void createSupply(GameState state, GameAction action) {
+    print('createSupply');
     if (state.runState != RunState.Running) return;
     playAudioButton();
     double cost = capitalExpense[action] ?? 0;
@@ -431,17 +696,9 @@ class _BlackDeathAppState extends State<BlackDeath> {
             state.solarProduction++;
             state.money -= cost;
             break;
-          case GameAction.buildWindFactory:
-            state.windProduction++;
-            state.money -= cost;
-            break;
           case GameAction.destroySolarFactory:
             if(state.solarProduction > 0)
               state.solarProduction--;
-            break;
-          case GameAction.destroyWindFactory:
-            if(state.windProduction > 0)
-              state.windProduction--;
             break;
           default:
             // do nothing
@@ -458,8 +715,8 @@ class _BlackDeathAppState extends State<BlackDeath> {
       showTriviaQuestion(state);
     } else {
       setState(() {
-        state.awareness += 1;
-        state.money -= 1; // Capex in Billion USD
+        state.awareness += state.education_budget * educationBudgetFactor;
+        state.money -= state.education_budget; // Capex in Billion USD
       });
     }
   }

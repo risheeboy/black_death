@@ -19,7 +19,7 @@ class GameTimer {
   void _tick() {
     if (!_isActive) return;
     Future.delayed(Duration(seconds: 1), () {
-        onYearPassed();
+      onYearPassed();
       _tick();
     });
   }
