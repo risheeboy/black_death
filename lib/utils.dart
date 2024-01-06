@@ -19,9 +19,10 @@ final int gameInstance = Random().nextInt(1000000000);
 
 const Map<GameAction, double> capitalExpense = {
   GameAction.buildSolarFactory: 2,
-  GameAction.buildWindFactory: 4,
-  GameAction.educateYouth: 2,
+  GameAction.increaseFossilFuelUsage: 1,
   GameAction.carbonCapture: 8,
   GameAction.increaseResearch: 5,
+  GameAction.destroySolarFactory: 1,
+  GameAction.decreaseFossilFuelUsage: 1,
   GameAction.doNothing: 0,
 };

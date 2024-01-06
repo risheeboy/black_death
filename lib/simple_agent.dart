@@ -1,4 +1,3 @@
-import 'dart:async';
 import 'dart:math';
 
 import 'game_actions.dart';
@@ -9,27 +8,37 @@ class SimpleAgent {
 
   GameAction chooseAction(GameState state) {
     double ppmToChange = co2LevelIdeal - state.co2Level;
-    print("PPM to change: $ppmToChange");
-    double relativeChangeRate = state.lastPpmIncrease / ppmToChange; // TODO handle divide by zero
-    print("Relative Change Rate: $relativeChangeRate");
+    // double relativeChangeRate = state.lastPpmIncrease / ppmToChange; // TODO handle divide by zero
+    // print("PPM to change: $ppmToChange. Relative Change Rate: $relativeChangeRate");
     // if(0.1 < relativeChangeRate) {
     //   print("On track, with last increase: ${state.lastPpmIncrease} and ppm to change: $ppmToChange");
     //   return GameAction.doNothing;
     // }
-    if(ppmToChange < -50) {
+    if(ppmToChange < -70) {
       if(state.ppmAnnualyAddedByFossilFuels() > 0) {
         if(state.supplyShortage() > 0) {
           return pickRandomAction([
             GameAction.buildSolarFactory, 
-            GameAction.buildWindFactory,
+            GameAction.increaseResearch,
+            //GameAction.buildWindFactory,
+            //GameAction.carbonCapture,
             ]);
-        } else {
-          return GameAction.educateYouth;
+        } else { // Demand shortage
+          return pickRandomAction([
+            GameAction.increaseEducationBudget,
+            GameAction.decreaseFossilFuelUsage
+            ]);
         }
-      } else 
-      return pickRandomAction([GameAction.carbonCapture, GameAction.increaseResearch]);
-    } else {
-      return pickRandomAction([GameAction.destroySolarFactory, GameAction.destroyWindFactory]);
+      } else // No fossil fuel used anymore
+      return pickRandomAction([
+        GameAction.carbonCapture, 
+        GameAction.increaseResearch
+        ]);
+    } else { // reduction is too fast
+      return pickRandomAction([
+        GameAction.destroySolarFactory, 
+        GameAction.increaseFossilFuelUsage,
+        ]);
     }
   }
   // function to pick one of the given list of actions randomly

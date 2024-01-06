@@ -16,10 +16,10 @@ class QAgent {
       if (snapshot.docs.isNotEmpty) {
         DocumentSnapshot doc = snapshot.docs.first;
         String actionName = doc.get('action');
-        print("Best action by QValue, for state $state is $actionName");
+        print("Best action by QValue, for state ${state.compressed()} is $actionName");
         return GameAction.values.byName(actionName);
       } else {
-        print('No QValue found with state ${state.compressed()}');
+        print('No QValues found with state ${state.compressed()}');
       }
     });
     return GameAction.values[Random().nextInt(GameAction.values.length)];

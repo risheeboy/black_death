@@ -1,10 +1,11 @@
 enum GameAction {
   buildSolarFactory,
   increaseResearch,
-  buildWindFactory,
-  educateYouth,
+  increaseFossilFuelUsage,
+  increaseEducationBudget,
+  decreaseEducationBudget,
   carbonCapture,
   doNothing,
   destroySolarFactory,
-  destroyWindFactory,
+  decreaseFossilFuelUsage,
 }

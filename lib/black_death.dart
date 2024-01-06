@@ -1,12 +1,10 @@
 import 'dart:math';
 
-import 'package:audioplayers/audioplayers.dart';
 import 'package:black_death/game_actions.dart';
 import 'package:black_death/run_state.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
-import 'package:marquee/marquee.dart';
 
 import 'game_manager.dart';
 import 'game_state.dart';
@@ -17,10 +15,7 @@ import 'utils.dart';
 
 final co2Data = [];
 
-void playAudioButton() async {
-  final player = AudioPlayer();
-  await player.play(AssetSource('audio/chime1.mp3'));
-}
+
 
 class BlackDeath extends StatefulWidget {
   @override
@@ -57,14 +52,9 @@ class StartScreen extends StatelessWidget {
 }
 
 class _BlackDeathAppState extends State<BlackDeath> {
-  bool isGamePaused() {
-  return gameManager.state.runState == RunState.Paused;
-  }
   late GameManager gameManager;
   late GameTimer gameTimer;
   bool isGameStarted = false;
-
-
 
   void startGame() {
     setState(() {
@@ -81,6 +71,11 @@ class _BlackDeathAppState extends State<BlackDeath> {
               gameTimer.stop();
             }
             co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
+          });
+        },
+        onAgentAction: () {
+          setState(() {
+            gameManager.agentAction();
           });
         },
       );
@@ -121,7 +116,14 @@ class _BlackDeathAppState extends State<BlackDeath> {
               color: Color(0xFF858585),
               size: 35,
             ),
-
+            Switch(
+              value: state.isAgentEnabled,
+              onChanged: (value) {
+                setState(() {
+                  state.isAgentEnabled = value;
+                });
+              },
+            ),
           ],
         ),
         actions: [],
@@ -167,10 +169,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           color: Color.fromARGB(255, 255, 255, 255),
                           size: 15,
                         ),
-                        onPressed: () {
-                            () => createSupply(
-                            state, GameAction.destroySolarFactory);
-                        },
+                        onPressed: () => gameManager.takeAction(GameAction.destroySolarFactory)
                       ),
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
@@ -186,8 +185,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           color: Color.fromARGB(255, 255, 255, 255),
                           size: 15,
                         ),
-                        onPressed: () => createSupply(
-                          state, GameAction.buildSolarFactory),
+                        onPressed: () => gameManager.takeAction(GameAction.buildSolarFactory)
                       ),
                     ],
                   ),
@@ -216,7 +214,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           color: Color.fromARGB(255, 255, 255, 255),
                           size: 15,
                         ),
-                        onPressed: () => state.fossilFuelProduction -= 1, 
+                        onPressed: () => gameManager.takeAction(GameAction.decreaseFossilFuelUsage), 
                       ),
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
@@ -232,7 +230,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           color: Color.fromARGB(255, 255, 255, 255),
                           size: 15,
                         ),
-                        onPressed: () => state.fossilFuelProduction += 1,
+                        onPressed: () => gameManager.takeAction(GameAction.increaseFossilFuelUsage),
                       ),
                     ],
                   ),
@@ -261,7 +259,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           color: Color.fromARGB(255, 255, 255, 255),
                           size: 15,
                         ),
-                        onPressed: () => state.education_budget -= 10,
+                        onPressed: () => gameManager.takeAction(GameAction.decreaseEducationBudget), 
                       ),
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
@@ -277,7 +275,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           color: Color.fromARGB(255, 255, 255, 255),
                           size: 15,
                         ),
-                        onPressed: () => state.education_budget += 10,
+                        onPressed: () => gameManager.takeAction(GameAction.increaseEducationBudget),
                       ),
                     ],
                   ),
@@ -313,9 +311,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           color: Color.fromARGB(255, 255, 255, 255),
                           size: 15,
                         ),
-                        onPressed: () {
-                          print('IconButton pressed ...');
-                        },
+                        onPressed: () => gameManager.takeAction(GameAction.increaseResearch),
                       ),
                     ],
                   ),
@@ -370,13 +366,13 @@ class _BlackDeathAppState extends State<BlackDeath> {
                               padding:
                                   EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
                               child: Text(
-                                'PPm',
+                                'PPM',
                                 style:
                                     TextStyle(fontSize: 14),
                               ),
                             ),
                             LinearPercentIndicator(
-                              percent: state.co2Level/(co2LevelMax+10),
+                              percent: min(state.co2Level, co2LevelMax)/(co2LevelMax),
                               width: 80,
                               lineHeight: 6,
                               animation: true,
@@ -422,7 +418,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                               ),
                             ),
                             LinearPercentIndicator(
-                              percent: state.lapsedYears/yearsToWin,
+                              percent: min(state.lapsedYears, yearsToWin)/yearsToWin, //TODO set gameover when passed yeards
                               width: 80,
                               lineHeight: 6,
                               animation: true,
@@ -684,42 +680,8 @@ class _BlackDeathAppState extends State<BlackDeath> {
     );
   }
 
-  void createSupply(GameState state, GameAction action) {
-    print('createSupply');
-    if (state.runState != RunState.Running) return;
-    playAudioButton();
-    double cost = capitalExpense[action] ?? 0;
-    if (cost <= state.money) {
-      setState(() {
-        switch (action) {
-          case GameAction.buildSolarFactory:
-            state.solarProduction++;
-            state.money -= cost;
-            break;
-          case GameAction.destroySolarFactory:
-            if(state.solarProduction > 0)
-              state.solarProduction--;
-            break;
-          default:
-            // do nothing
-            break;
-        }
-      });
-    } else {
-      showTriviaQuestion(state);
-    }
-  }
 
-  void createDemand(GameState state) {
-    if (state.runState != RunState.Running || state.money <= 0) {
-      showTriviaQuestion(state);
-    } else {
-      setState(() {
-        state.awareness += state.education_budget * educationBudgetFactor;
-        state.money -= state.education_budget; // Capex in Billion USD
-      });
-    }
-  }
+
 
   void showTriviaQuestion(GameState state) {
     var trivia = getRandomTriviaQuestion();
