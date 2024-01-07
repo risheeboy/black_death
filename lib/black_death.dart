@@ -388,7 +388,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                         padding:
                             EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
                         child: Row(
-                          mainAxisSize: MainAxisSize.max,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Padding(
                               padding:
@@ -471,7 +471,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                         padding:
                             EdgeInsetsDirectional.fromSTEB(15, 15, 15, 15),
                         child: Row(
-                          mainAxisSize: MainAxisSize.max,
+                          mainAxisSize: MainAxisSize.min,
                           children: [
                             Padding(
                               padding:
@@ -489,14 +489,14 @@ class _BlackDeathAppState extends State<BlackDeath> {
                               size: 20,
                             ),
                             Text(
-                              '15',
+                              state.money.toStringAsFixed(2),
                               style: TextStyle(  fontSize: 14),
                             ),
                             Padding(
                               padding:
                                   EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
                               child: Text(
-                                'B',
+                                ' B',
                                 style:
                                     TextStyle(  fontSize: 14),
                               ),
@@ -526,14 +526,14 @@ class _BlackDeathAppState extends State<BlackDeath> {
                               ),
                             ),
                             Text(
-                              state.renewableDemand().toString(),
+                              state.renewableDemand().toStringAsFixed(2),
                               style: TextStyle(  fontSize: 14),
                             ),
                             Padding(
                               padding:
                                   EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
                               child: Text(
-                                'TWh',
+                                ' TWh',
                                 style:
                                     TextStyle(  fontSize: 14),
                               ),
@@ -563,14 +563,14 @@ class _BlackDeathAppState extends State<BlackDeath> {
                               ),
                             ),
                             Text(
-                              state.renewableSupply().toString(),
+                              state.renewableSupply().toStringAsFixed(2),
                               style: TextStyle(  fontSize: 14),
                             ),
                             Padding(
                               padding:
                                   EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
                               child: Text(
-                                'TWh',
+                                ' TWh',
                                 style:
                                     TextStyle(  fontSize: 14),
                               ),
@@ -602,10 +602,10 @@ class _BlackDeathAppState extends State<BlackDeath> {
                       gridData: FlGridData(show: true),
                       titlesData: FlTitlesData(
                         bottomTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: true),
+                          sideTitles: SideTitles(showTitles: true, reservedSize: 23),
                         ),
                         leftTitles: AxisTitles(
-                          sideTitles: SideTitles(showTitles: true),
+                          sideTitles: SideTitles(showTitles: true, reservedSize: 33),
                         ),
                         topTitles: AxisTitles(
                           sideTitles: SideTitles(showTitles: false), // Hide top titles
@@ -728,7 +728,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           context: context,
                           builder: (context) => AlertDialog(
                             title: Text("Correct!"),
-                            content: Text("You earned \$1000 MM."),
+                            content: Text("You earned \$10 B."),
                             actions: [
                               TextButton(
                                 onPressed: () => Navigator.pop(context),
