@@ -587,23 +587,44 @@ class _BlackDeathAppState extends State<BlackDeath> {
               thickness: 1,
               color: Color.fromARGB(204, 255, 255, 255),
             ),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Transform.rotate(
-                  angle: 4.7124,
-                  child: Text(
-                    'Hello World',
-                    style: TextStyle(  fontSize: 14),
+            Expanded(
+              child: Card(
+                color: Colors.white.withOpacity(0.4),
+                elevation: 4,
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: LineChart(
+                    LineChartData(
+                      minX: 0,
+                      maxX: 200,
+                      minY: 250,
+                      maxY: 450,
+                      gridData: FlGridData(show: true),
+                      titlesData: FlTitlesData(
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: true),
+                        ),
+                        leftTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: true),
+                        ),
+                        topTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false), // Hide top titles
+                        ),
+                        rightTitles: AxisTitles(
+                          sideTitles: SideTitles(showTitles: false), // Hide right titles
+                        ),
+                      ),
+
+                      lineBarsData: _createData(state),
+                    ),
                   ),
                 ),
-              ],
+              ),
             ),
           ],
         ),
       ),
     );
-
   }
 
   @override
