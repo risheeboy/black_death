@@ -5,7 +5,7 @@ import 'utils.dart';
 class GameState {
   double co2Level; // PPM (parts per million) CO2 in atmosphere
   int lapsedYears; // Years passed since start of game
-  double solarProduction; // Solar panel and battery production for additional energy in PWh/year
+  int solarProduction; // Solar panel and battery production for additional energy in PWh/year
   double awareness; // Million people fully aware of what needs to be done
   double carbonCapture; // PPM CO2 reduced due to carbon capture by nature
   double money; // Budget in billion USD/year

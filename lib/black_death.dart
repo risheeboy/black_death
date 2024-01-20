@@ -35,7 +35,38 @@ class StartScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Text(
-              'Welcome to Black Death!\n\nGame Mechanics: [CO2 Management: The core challenge is to maintain ideal CO2 levels (measured in ppm) by balancing various actions\. \nActions and Decisions: Players can take several actions, such as increasing research, creating supply (solar and wind factories), and educating the youth. Each action influences the game\'s environment and resources. \nResource Management: Players must manage money, which is required to perform actions. Actions like building factories or conducting research cost money. \nResearch and Development: Investing in research can improve the game\'s outcome. It costs money and affects other game elements.]', // Add game mechanics explanation here
+              '''How to Play:
+              Start and Progression:
+
+              Engage in a real-time strategy experience where every decision impacts the game world.
+              Your primary objective is to balance CO2 levels.
+
+              Decision-Making:
+              Choose from a range of actions: build renewable energy factories, manage fossil fuel usage, and allocate funds for climate education.
+              Every action has a direct effect on resources, CO2 levels, and the game's environment.
+
+              Resource Allocation:
+              Strategically allocate your budget between various environmental actions.
+              Balancing your budget is crucial for sustainable progress.
+
+              Research and Development:
+              Invest in research to unlock new capabilities and enhance your strategy.
+              Research decisions impact your budget and environmental outcomes.
+
+              Real-Time Feedback:
+              Watch the immediate impact of your decisions through visual indicators like charts and progress bars.
+              Adapt your strategy based on ongoing feedback from the game environment.
+
+              Interactive Learning:
+              Engage with trivia questions throughout the game to earn rewards and enhance your understanding of climate issues.
+
+              End Game:
+              The game concludes based on your ability to stabilize CO2 levels over a period.
+              Different endings reflect the success or failure of your environmental strategies.
+
+              Why Play Black Death?
+              Educational and Fun: Learn about climate management while enjoying a strategic gaming experience.
+              Real-World Application: Gain insights into real-world environmental challenges and management strategies.''', // Add game mechanics explanation here
               textAlign: TextAlign.center,
               style: TextStyle(fontSize: 18),
             ),
@@ -55,6 +86,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
   late GameManager gameManager;
   late GameTimer gameTimer;
   bool isGameStarted = false;
+  bool isGamePaused = false;
 
   void startGame() {
     setState(() {
@@ -78,6 +110,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
             gameManager.agentAction();
           });
         },
+        gameManager: gameManager,
       );
       gameTimer.start();
     });
@@ -94,6 +127,18 @@ class _BlackDeathAppState extends State<BlackDeath> {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
+        actions: [
+          IconButton(
+            icon: Icon(isGamePaused ? Icons.play_arrow : Icons.pause),
+            onPressed: () {
+              if (isGamePaused) {
+                resumeGame();
+              } else {
+                pauseGame();
+              }
+            },
+          ),
+        ],
         backgroundColor: Color.fromARGB(255, 75, 57, 239),
         automaticallyImplyLeading: false,
         title: Row(
@@ -126,11 +171,20 @@ class _BlackDeathAppState extends State<BlackDeath> {
             ),
           ],
         ),
-        actions: [],
         centerTitle: false,
         elevation: 5,
       ),
-      body: SafeArea(
+      body: Container(
+        decoration: BoxDecoration(
+          image: DecorationImage(
+            image: AssetImage("images/earth_smoke.png"),
+            fit: BoxFit.cover,
+            // transparancy of the image
+            colorFilter: ColorFilter.mode(
+                Colors.white.withOpacity(0.2), BlendMode.dstATop),
+          )
+        ),
+      child: SafeArea(
         top: true,
         child: Column(
           mainAxisSize: MainAxisSize.max,
@@ -157,19 +211,55 @@ class _BlackDeathAppState extends State<BlackDeath> {
                       ),
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
-                        child: Text(
-                          'Renewable energy production',
-                          style: TextStyle(  fontSize: 14),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Tooltip(
+                              message: 'Renewable Energy Production',
+                              child: Text('Renewable', style: TextStyle(fontSize: 14)),
+                            ),
+                            SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: IconButton(
+                                padding: EdgeInsets.zero, // remove default padding
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text("Renewable Energy Production", style: TextStyle(fontSize: 14)),
+                                      content: Text(
+                                          "Renewable energy production is the process of generating electricity from renewable energy sources. It is a key action to reduce CO2 levels.", 
+                                          style: TextStyle(fontSize: 12),
+                                          ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: Text("OK"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                icon: Icon(Icons.info_outline, size: 20), // you can also adjust the size of the icon here
+                              ),
+                            )                                                                                                                                                                                                                                                 ,
+                          ],
                         ),
                       ),
-                      IconButton.filledTonal(
-                        color: Color.fromARGB(255, 75, 57, 239),
-                        icon: Icon(
-                          Icons.remove,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          size: 15,
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: IconButton.filledTonal(
+                          padding: EdgeInsets.zero,
+                          color: Color.fromARGB(255, 75, 57, 239),
+                          icon: Icon(
+                            Icons.remove,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            size: 15,
+                          ),
+                          onPressed: () => gameManager.takeAction(GameAction.destroySolarFactory)
                         ),
-                        onPressed: () => gameManager.takeAction(GameAction.destroySolarFactory)
                       ),
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
@@ -178,14 +268,19 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           style: TextStyle(fontSize: 14),
                         ),
                       ),
-                      IconButton.filledTonal(
-                        color: Color.fromARGB(255, 75, 57, 239),
-                        icon: Icon(
-                          Icons.add,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          size: 15,
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: IconButton.filledTonal(
+                          padding: EdgeInsets.zero,
+                          color: Color.fromARGB(255, 75, 57, 239),
+                          icon: Icon(
+                            Icons.add,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            size: 15,
+                          ),
+                          onPressed: () => gameManager.takeAction(GameAction.buildSolarFactory)
                         ),
-                        onPressed: () => gameManager.takeAction(GameAction.buildSolarFactory)
                       ),
                     ],
                   ),
@@ -202,19 +297,55 @@ class _BlackDeathAppState extends State<BlackDeath> {
                       ),
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
-                        child: Text(
-                          'Fossil fuel usage',
-                          style: TextStyle(  fontSize: 14),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Tooltip(
+                              message: 'Fossil Fuel Usage',
+                              child: Text('Fossil Fuel', style: TextStyle(fontSize: 14)),
+                            ),
+                            SizedBox(
+                              height: 30,
+                              width: 30,
+                              child: IconButton(
+                                padding: EdgeInsets.zero, // remove default padding
+                                onPressed: () {
+                                  showDialog(
+                                    context: context,
+                                    builder: (context) => AlertDialog(
+                                      title: Text("Fossil Fuel Usage", style: TextStyle(fontSize: 14)),
+                                      content: Text(
+                                          "Renewable energy production is the process of generating electricity from renewable energy sources. It is a key action to reduce CO2 levels.", 
+                                          style: TextStyle(fontSize: 12),
+                                          ),
+                                      actions: [
+                                        TextButton(
+                                          onPressed: () => Navigator.pop(context),
+                                          child: Text("OK"),
+                                        ),
+                                      ],
+                                    ),
+                                  );
+                                },
+                                icon: Icon(Icons.info_outline, size: 20), // you can also adjust the size of the icon here
+                              ),
+                            )                                                                                                                                                                                                                                                 ,
+                          ],
                         ),
                       ),
-                      IconButton.filledTonal(
-                        color: Color.fromARGB(255, 75, 57, 239),
-                        icon: Icon(
-                          Icons.remove,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          size: 15,
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: IconButton.filledTonal(
+                          padding: EdgeInsets.zero,
+                          color: Color.fromARGB(255, 75, 57, 239),
+                          icon: Icon(
+                            Icons.remove,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            size: 15,
+                          ),
+                          onPressed: () => gameManager.takeAction(GameAction.decreaseFossilFuelUsage)
                         ),
-                        onPressed: () => gameManager.takeAction(GameAction.decreaseFossilFuelUsage), 
                       ),
                       Padding(
                         padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
@@ -223,14 +354,19 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           style: TextStyle(  fontSize: 14),
                         ),
                       ),
-                      IconButton.filledTonal(
-                        color: Color.fromARGB(255, 75, 57, 239),
-                        icon: Icon(
-                          Icons.add,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          size: 15,
+                      SizedBox(
+                        height: 30,
+                        width: 30,
+                        child: IconButton.filledTonal(
+                          padding: EdgeInsets.zero,
+                          color: Color.fromARGB(255, 75, 57, 239),
+                          icon: Icon(
+                            Icons.add,
+                            color: Color.fromARGB(255, 255, 255, 255),
+                            size: 15,
+                          ),
+                          onPressed: () => gameManager.takeAction(GameAction.increaseFossilFuelUsage)
                         ),
-                        onPressed: () => gameManager.takeAction(GameAction.increaseFossilFuelUsage),
                       ),
                     ],
                   ),
@@ -624,6 +760,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
           ],
         ),
       ),
+    ),
     );
   }
 
@@ -632,7 +769,20 @@ class _BlackDeathAppState extends State<BlackDeath> {
     gameTimer.stop();
     super.dispose();
   }
+  void pauseGame() {
+    setState(() {
+      isGamePaused = true;
+      gameTimer.stop(); // Stop the game timer
+      showTriviaQuestion(gameManager.state); // Show trivia question
+    });
+  }
 
+  void resumeGame() {
+    setState(() {
+      isGamePaused = false;
+      gameTimer.start(); // Resume the game timer
+    });
+  }
   void increaseResearch(GameState state) {
     if (state.runState != RunState.Running) return;
     // Define the cost for research
@@ -731,7 +881,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                             content: Text("You earned \$10 B."),
                             actions: [
                               TextButton(
-                                onPressed: () => Navigator.pop(context),
+                                onPressed: () { Navigator.pop(context); resumeGame(); },
                                 child: Text("OK"),
                               ),
                             ],
@@ -740,7 +890,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                         setState(() {
                           state.runState = RunState.Running; // Resume the game
                         });
-                      }// Additional logic for correct/incorrect answer
+                      } else {showTriviaQuestion(gameManager.state);}// Additional logic for correct/incorrect answer
                     },
                     child: Text(trivia.options[index]),
                     style: ElevatedButton.styleFrom(

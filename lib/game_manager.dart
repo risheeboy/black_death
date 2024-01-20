@@ -1,3 +1,5 @@
+import 'dart:js';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -7,6 +9,7 @@ import 'q_agent.dart';
 import 'run_state.dart';
 import 'simple_agent.dart';
 import 'utils.dart';
+import 'package:flutter/material.dart';
 
 class GameManager {
   GameState state;
@@ -23,12 +26,12 @@ class GameManager {
     // GameState oldState = GameState.clone(state);
     state.lapsedYears++;
     state.money += annualBudget;
-    print("Year: ${state.lapsedYears} Money: ${state.money} Demand: ${state.renewableDemand()} Supply: ${state.renewableSupply()}");
-    print("PPM Added: ${state.ppmAnnualyAddedByFossilFuels()} Carbon Capture: ${state.carbonCapture}");
-    if (state.money >= state.education_budget) {
-      state.awareness += state.education_budget * educationBudgetFactor;
-      state.money -= state.education_budget; // Capex in Billion USD
-    }
+    print("Year: ${state.lapsedYears} Money: ${state.money}");
+    print("Demand: ${state.renewableDemand()} Supply: ${state.renewableSupply()} Awareness: ${state.awareness.round()} solar: ${state.solarProduction.round()} fossil: ${state.fossilFuelProduction.round()}");
+    //print("PPM Added: ${state.ppmAnnualyAddedByFossilFuels().round()} Carbon Capture: ${state.carbonCapture}");
+    double educationSpend = min(state.money, state.education_budget.toDouble());
+    state.awareness += (educationSpend * educationBudgetFactor) * (1 - annualAwarenessFractionDecline);
+    state.money -= educationSpend; // Capex in Billion USD
 
     if (state.co2Level > co2LevelMax) {
       state.runState = RunState.LostTooHigh;
@@ -49,7 +52,7 @@ class GameManager {
 
     // Prepare data for Q-learning agent, send data to firebase
     double reward = -increaseInPpm; //TODO should be second order PPM change in desired direction
-    print("CO2: ${state.co2Level} Reward: $reward");
+    //print("CO2: ${state.co2Level.round()} Rewardx100: ${(reward*100).round()}");
     int actionsToAdd = _pendingActions.length;
     if(actionsToAdd > 0) {
       _pendingActions.forEach((action) {
@@ -75,7 +78,7 @@ class GameManager {
 
   void agentAction() {
     GameAction action = agent.chooseAction(state);
-    print(" Action: $action");
+    print(action.name);
     // GameAction qaction = qagent.chooseAction(state);
     // print("QAction: $qaction");
 
@@ -98,9 +101,10 @@ class GameManager {
         state.fossilFuelProduction++;
         state.money -= capex;
       } else if(action == GameAction.increaseEducationBudget) {
-        state.education_budget += 2;
+        state.education_budget++;
       } else if(action == GameAction.decreaseEducationBudget) {
-        state.education_budget -= 2;
+        if(state.education_budget > 0)
+          state.education_budget--;
       } else if(action == GameAction.carbonCapture) {
         state.carbonCapture++;
         state.money -= capex;
@@ -115,12 +119,39 @@ class GameManager {
         if (state.fossilFuelProduction > 0)
           state.fossilFuelProduction--;
         state.money -= capex;
+      } else if (action == GameAction.naturalDisaster) {
+          var rng = new Random(10);
+          if (state.solarProduction > 0) {
+            int numToDestroy = rng.nextInt(state.solarProduction);
+            state.solarProduction -= numToDestroy;
+            // Show a dialog
+            /*showDialog(
+              context: context,
+              builder: (BuildContext context) {
+                return AlertDialog(
+                  title: Text('Natural Disaster'),
+                  content: Text('A natural disaster occurred and destroyed $numToDestroy solar panels.'),
+                  actions: <Widget>[
+                    ElevatedButton(
+                      child: Text('OK'),
+                      onPressed: () {
+                        Navigator.of(context).pop();
+                      },
+                    ),
+                  ],
+                );
+              },
+            );*/
+          }
+          state.money -= capex;
+        }
+        state.money -= capex;
       } else {
         // Do nothing
       }
-    }
   }
 }
+
 
 
 // Internal class to be pushed to firestore collection 'actions' for QTable learning 
@@ -146,5 +177,5 @@ class _QAction {
 
 void playAudioButton() async {
   final player = AudioPlayer();
-  await player.play(AssetSource('audio/chime1.mp3'));
+  await player.play(AssetSource('audio/chime1.wav'));
 }

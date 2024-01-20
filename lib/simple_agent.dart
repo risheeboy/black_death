@@ -15,29 +15,34 @@ class SimpleAgent {
     //   return GameAction.doNothing;
     // }
     if(ppmToChange < -70) {
+      //print("PPM By Fossil Fuels: ${state.ppmAnnualyAddedByFossilFuels()}");
       if(state.ppmAnnualyAddedByFossilFuels() > 0) {
-        if(state.supplyShortage() > 0) {
+        //print("solar: ${state.solarProduction} Awareness: ${state.awareness}");
+        //print("Demand: ${state.renewableDemand()} Supply: ${state.renewableSupply()} Shortage: ${state.supplyShortage()}");
+        if(state.supplyShortage() >= 0) {
           return pickRandomAction([
             GameAction.buildSolarFactory, 
+            GameAction.buildSolarFactory, 
             GameAction.increaseResearch,
-            //GameAction.buildWindFactory,
             //GameAction.carbonCapture,
             ]);
         } else { // Demand shortage
           return pickRandomAction([
             GameAction.increaseEducationBudget,
-            GameAction.decreaseFossilFuelUsage
+            //GameAction.decreaseFossilFuelUsage
             ]);
         }
       } else // No fossil fuel used anymore
       return pickRandomAction([
         GameAction.carbonCapture, 
-        GameAction.increaseResearch
+        GameAction.increaseResearch,
+        GameAction.decreaseEducationBudget,
         ]);
     } else { // reduction is too fast
       return pickRandomAction([
         GameAction.destroySolarFactory, 
         GameAction.increaseFossilFuelUsage,
+        GameAction.decreaseEducationBudget,
         ]);
     }
   }
