@@ -25,7 +25,7 @@ class GameTimer {
     if (!_isActive) return;
     Future.delayed(Duration(seconds: 1), () {
       onYearPassed();    
-      if (gameManager.state.lapsedYears % 5 == 0) { // Trigger disaster every 5 years
+      if ((gameManager.state.lapsedYears % (5-gameManager.frequencyOfNaturalDisastor)).round() == 0) {
         gameManager.takeAction(GameAction.naturalDisaster);
       }
       _yearPassed();

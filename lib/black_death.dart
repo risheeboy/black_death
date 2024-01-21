@@ -12,6 +12,7 @@ import 'game_timer.dart';
 import 'q_agent.dart';
 import 'simple_agent.dart';
 import 'utils.dart';
+import 'agent_screen.dart';
 
 final co2Data = [];
 
@@ -30,52 +31,73 @@ class StartScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text(
-              '''How to Play:
-              Start and Progression:
+      body: Container(
+        decoration: BoxDecoration(
+          color: Colors.lightBlue[50], // Light background color
+          image: DecorationImage(
+            image: AssetImage('images/background.jpg'), // Background image
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+                Colors.white.withOpacity(0.5), BlendMode.dstATop), // Transparancy of the image
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView( // For scrolling
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '''How to Play:
+Start and Progression:
 
-              Engage in a real-time strategy experience where every decision impacts the game world.
-              Your primary objective is to balance CO2 levels.
+Engage in a real-time strategy experience where every decision impacts the game world.
+Your primary objective is to balance CO2 levels.
 
-              Decision-Making:
-              Choose from a range of actions: build renewable energy factories, manage fossil fuel usage, and allocate funds for climate education.
-              Every action has a direct effect on resources, CO2 levels, and the game's environment.
+Decision-Making:
+Choose from a range of actions: build renewable energy factories, manage fossil fuel usage, and allocate funds for climate education.
+Every action has a direct effect on resources, CO2 levels, and the game's environment.
 
-              Resource Allocation:
-              Strategically allocate your budget between various environmental actions.
-              Balancing your budget is crucial for sustainable progress.
+Resource Allocation:
+Strategically allocate your budget between various environmental actions.
+Balancing your budget is crucial for sustainable progress.
 
-              Research and Development:
-              Invest in research to unlock new capabilities and enhance your strategy.
-              Research decisions impact your budget and environmental outcomes.
+Research and Development:
+Invest in research to unlock new capabilities and enhance your strategy.
+Research decisions impact your budget and environmental outcomes.
 
-              Real-Time Feedback:
-              Watch the immediate impact of your decisions through visual indicators like charts and progress bars.
-              Adapt your strategy based on ongoing feedback from the game environment.
+Real-Time Feedback:
+Watch the immediate impact of your decisions through visual indicators like charts and progress bars.
+Adapt your strategy based on ongoing feedback from the game environment.
 
-              Interactive Learning:
-              Engage with trivia questions throughout the game to earn rewards and enhance your understanding of climate issues.
+Interactive Learning:
+Engage with trivia questions throughout the game to earn rewards and enhance your understanding of climate issues.
 
-              End Game:
-              The game concludes based on your ability to stabilize CO2 levels over a period.
-              Different endings reflect the success or failure of your environmental strategies.
+End Game:
+The game concludes based on your ability to stabilize CO2 levels over a period.
+Different endings reflect the success or failure of your environmental strategies.
 
-              Why Play Black Death?
-              Educational and Fun: Learn about climate management while enjoying a strategic gaming experience.
-              Real-World Application: Gain insights into real-world environmental challenges and management strategies.''', // Add game mechanics explanation here
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18),
+Why Play Black Death?
+Educational and Fun: Learn about climate management while enjoying a strategic gaming experience.
+Real-World Application: Gain insights into real-world environmental challenges and management strategies.''', // Instructions
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87, // Text color
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed: onStartGame,
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 97, 160, 94), // Button color
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  ),
+                  child: Text('Start Game', style: TextStyle(fontSize: 16, color: Colors.white),),
+                ),
+              ],
             ),
-            SizedBox(height: 20),
-            ElevatedButton(
-              onPressed: onStartGame,
-              child: Text('Start Game'),
-            ),
-          ],
+          ),
         ),
       ),
     );
@@ -130,6 +152,8 @@ class _BlackDeathAppState extends State<BlackDeath> {
         actions: [
           IconButton(
             icon: Icon(isGamePaused ? Icons.play_arrow : Icons.pause),
+            iconSize: 50,
+            color: Color(0xFF858585),
             onPressed: () {
               if (isGamePaused) {
                 resumeGame();
@@ -156,10 +180,17 @@ class _BlackDeathAppState extends State<BlackDeath> {
                     ),
               ),
             ),
-            Icon(
-              Icons.smart_toy,
+            IconButton(
+              icon: Icon(Icons.smart_toy),
               color: Color(0xFF858585),
-              size: 35,
+              onPressed: () {
+                pauseGame(); // Pause the game timer
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => AgentScreen(title: 'Configure Agent',)),
+                );
+              },
+              iconSize: 35,
             ),
             Switch(
               value: state.isAgentEnabled,

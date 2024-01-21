@@ -1,4 +1,3 @@
-import 'dart:js';
 import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:audioplayers/audioplayers.dart';
@@ -9,7 +8,6 @@ import 'q_agent.dart';
 import 'run_state.dart';
 import 'simple_agent.dart';
 import 'utils.dart';
-import 'package:flutter/material.dart';
 
 class GameManager {
   GameState state;
@@ -21,6 +19,8 @@ class GameManager {
   final List<GameAction> _pendingActions = [];
 
   GameManager(this.state, this.agent, this.qagent);
+
+  double frequencyOfNaturalDisastor = (GameState().co2Level-350).abs()/200;
 
   void updateGameState() {
     // GameState oldState = GameState.clone(state);
@@ -124,24 +124,6 @@ class GameManager {
           if (state.solarProduction > 0) {
             int numToDestroy = rng.nextInt(state.solarProduction);
             state.solarProduction -= numToDestroy;
-            // Show a dialog
-            /*showDialog(
-              context: context,
-              builder: (BuildContext context) {
-                return AlertDialog(
-                  title: Text('Natural Disaster'),
-                  content: Text('A natural disaster occurred and destroyed $numToDestroy solar panels.'),
-                  actions: <Widget>[
-                    ElevatedButton(
-                      child: Text('OK'),
-                      onPressed: () {
-                        Navigator.of(context).pop();
-                      },
-                    ),
-                  ],
-                );
-              },
-            );*/
           }
           state.money -= capex;
         }
