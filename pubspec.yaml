@@ -16,6 +16,7 @@ dependencies:
   marquee: ^2.2.0
   cloud_firestore: ^4.13.6
   percent_indicator: ^4.2.3
+  shared_preferences: ^2.2.2
 
 flutter:
   assets:

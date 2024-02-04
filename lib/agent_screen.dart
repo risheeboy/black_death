@@ -1,34 +1,9 @@
 import 'package:flutter/material.dart';
-import 'game_actions.dart';
 
+import 'game_manager.dart';
+import 'rule.dart';
+import 'utils.dart';
 
-enum StateVariable {
-  CO2Level,
-  RenewableProduction,
-  FossilFuelConsumption,
-  CarbonCapture,
-  Budget
-}
-
-enum Comparator {LessThanOrEqual, LessThan, Equal, GreaterThan, GreaterThanOrEqual}
-extension ComparatorName on Comparator {
-  String get formattedName {
-    switch (this) {
-      case Comparator.LessThanOrEqual:
-        return '<=';
-      case Comparator.LessThan:
-        return '<';
-      case Comparator.Equal:
-        return '=';
-      case Comparator.GreaterThan:
-        return '>';
-      case Comparator.GreaterThanOrEqual:
-        return '>=';
-      default:
-        return '';
-    }
-  }
-}
 
 // Lists for Dropdown component menu-items
 final List<DropdownMenuItem<GameAction>> _playerActions = GameAction.values.map((v) => DropdownMenuItem(value: v, child: Text(v.name))).toList();
@@ -36,40 +11,59 @@ final List<DropdownMenuItem<Comparator>> _comparators = Comparator.values.map((v
 final List<DropdownMenuItem<StateVariable>> _stateVariables = StateVariable.values.map((v) => DropdownMenuItem(value: v, child: Text(v.name))).toList();
 
 class AgentScreen extends StatefulWidget {
-  const AgentScreen({Key? key, required this.title}) : super(key: key);
-  final String title;
+const AgentScreen({Key? key, required this.gameManager}) : super(key: key);
+  final GameManager gameManager;
 
   @override
-  AgentScreenState createState() => AgentScreenState();
+  _AgentScreenState createState() => _AgentScreenState();
 }
 
-class AgentScreenState extends State<AgentScreen> {
+class _AgentScreenState extends State<AgentScreen> {
+  List<Rule> rules = [];
   final _formKey = GlobalKey<FormState>();
-  final List<Rule> _rules = [];
+
+  @override
+  void initState() {
+    super.initState();
+    setState(() {
+      rules = widget.gameManager.customSidekick.rules ?? [];
+    });
+  }
+
+  void saveRules() {
+    widget.gameManager.customSidekick.saveRules(rules);
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: Text('Configure Agent'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.save),
+            onPressed: saveRules,
+          ),
+        ],
       ),
       body: Form(
         key: _formKey,
         child: ListView.builder(
-          itemCount: _rules.length + 1,
+          itemCount: rules.length + 1,
           itemBuilder: (context, index) {
-            if (index < _rules.length) {
+            if (index < rules.length) {
               return RuleWidget(
-                  rule: _rules[index],
-                  onMoveUp: () => setState(() => _rules.insert(index - 1, _rules.removeAt(index))),
-                  onMoveDown: () => setState(() => _rules.insert(index + 1, _rules.removeAt(index))),
-                  onAddCondition: () => setState(() => _rules[index].conditions.add(Condition(StateVariable.CO2Level, Comparator.GreaterThan, 350))),
-                  onDelete: () => setState(() => _rules.removeAt(index)),
+                  rule: rules[index],
+                  onMoveUp: () => setState(() => rules.insert(index - 1, rules.removeAt(index))),
+                  onMoveDown: () => setState(() => rules.insert(index + 1, rules.removeAt(index))),
+                  onAddCondition: () => setState(() => rules[index].conditions.add(Condition(StateVariable.CO2Level, Comparator.GreaterThan, 350))),
+                  onDelete: () => setState(() => rules.removeAt(index)),
               );
             } else {
               return AddRuleButton(
                   onAdd: () =>
-                      setState(() => _rules.add(Rule(GameAction.buildSolarFactory))));
+                    setState(() => rules.add(Rule.withConditions(GameAction.buildSolarFactory, 
+                    [Condition(StateVariable.CO2Level, Comparator.GreaterThan, 350)]))));
             }
           },
         ),
@@ -77,7 +71,8 @@ class AgentScreenState extends State<AgentScreen> {
       floatingActionButton: FloatingActionButton(
         onPressed: () {
           if (_formKey.currentState!.validate()) {
-            //TODO Save the configuration
+            saveRules();
+            //Navigator.pop(context);
           }
         },
         tooltip: 'Save',
@@ -99,11 +94,24 @@ class RuleWidget extends StatefulWidget {
       : super(key: key);
 
   @override
-  RuleWidgetState createState() => RuleWidgetState();
+  _RuleWidgetState createState() => _RuleWidgetState();
 }
 
-class RuleWidgetState extends State<RuleWidget> {
+class _RuleWidgetState extends State<RuleWidget> {
 
+  late TextEditingController valueController;
+
+  @override
+  void initState() {
+    super.initState();
+    valueController = TextEditingController(text: widget.rule.playerAction.name);
+  }
+
+  @override
+  void dispose() {
+    valueController.dispose();
+    super.dispose();
+  }
   @override
   Widget build(BuildContext context) {
     return Card(
@@ -192,10 +200,10 @@ class ConditionWidget extends StatefulWidget {
   const ConditionWidget({Key? key, required this.condition}) : super(key: key);
 
   @override
-  ConditionWidgetState createState() => ConditionWidgetState();
+  _ConditionWidgetState createState() => _ConditionWidgetState();
 }
 
-class ConditionWidgetState extends State<ConditionWidget> {
+class _ConditionWidgetState extends State<ConditionWidget> {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
@@ -303,30 +311,18 @@ class AddRuleButton extends StatelessWidget {
       : super(key: key);
 
   @override
-    Widget build(BuildContext context) {
-      return Center(
-        child: Padding(
-          padding: const EdgeInsets.all(5), // Add 5px padding around the button
-          child: ElevatedButton(
-            onPressed: onAdd,
-            child: const Text('Add Rule'),
+  Widget build(BuildContext context) {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(5), // Add 5px padding around the button
+        child: ElevatedButton(
+          onPressed: onAdd,
+          child: const Text('Add Rule', style: TextStyle(color: Colors.white)),
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Color.fromARGB(255, 60, 118, 180),
           ),
         ),
-      );
-    }
+      ),
+    );
   }
-
-class Rule {
-  List<Condition> conditions = [];
-  GameAction playerAction;
-
-  Rule(this.playerAction);
-}
-
-class Condition {
-  StateVariable stateVariable;
-  Comparator comparator;
-  double value;
-
-  Condition(this.stateVariable, this.comparator, this.value);
 }

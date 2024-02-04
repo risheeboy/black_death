@@ -1,26 +1,30 @@
 import 'dart:math';
+import 'package:black_death/rule.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:audioplayers/audioplayers.dart';
 
-import 'game_actions.dart';
 import 'game_state.dart';
 import 'q_agent.dart';
 import 'run_state.dart';
+import 'custom_sidekick.dart';
 import 'simple_agent.dart';
 import 'utils.dart';
 
 class GameManager {
   GameState state;
-  SimpleAgent agent;
+  Sidekick sidekick = Sidekick.None;
+  int gameInstance = 0;
+  SimpleAgent simpleAgent;
+  CustomSidekick customSidekick = CustomSidekick();//TODO initialize rules
   QAgent qagent;
 
-  GameState _previousState = GameState();
+  GameState _previousState = GameState();//TODO check creating new GameState is correct logic
   final List<_QAction> _qactions = [];
   final List<GameAction> _pendingActions = [];
 
-  GameManager(this.state, this.agent, this.qagent);
+  GameManager(this.state, this.simpleAgent, this.qagent);
 
-  double frequencyOfNaturalDisastor = (GameState().co2Level-350).abs()/200;
+  double frequencyOfNaturalDisastor = (GameState().co2Level - 350).abs()/200;//TODO check creating new GameState is correct logic
 
   void updateGameState() {
     // GameState oldState = GameState.clone(state);
@@ -77,12 +81,26 @@ class GameManager {
   }
 
   void agentAction() {
-    GameAction action = agent.chooseAction(state);
-    print(action.name);
-    // GameAction qaction = qagent.chooseAction(state);
-    // print("QAction: $qaction");
-
-    if(state.isAgentEnabled) {
+    GameAction action;
+    switch(sidekick) {
+      case Sidekick.None:
+        action = GameAction.doNothing;
+        break;
+      case Sidekick.System:
+        action = simpleAgent.chooseAction(state);
+        break;
+      case Sidekick.Custom:
+        action = customSidekick.chooseAction(state);
+        break;
+      case Sidekick.AI:
+        action = qagent.chooseAction(state);
+        break;
+      default:
+        action = GameAction.doNothing;
+        break;
+    }
+    print('$sidekick action $action');
+    if(action != GameAction.doNothing) {
       takeAction(action);
     }
     _pendingActions.add(action);
@@ -129,8 +147,12 @@ class GameManager {
         }
         state.money -= capex;
       } else {
-        // Do nothing
+        print('Sorry, capex $capex > available money ${state.money}');//TODO play warning sound and inform user
       }
+  }
+
+  void setSidekick(Sidekick selectedSidekick) {
+    sidekick = selectedSidekick;
   }
 }
 

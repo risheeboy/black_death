@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:black_death/game_actions.dart';
-import 'package:black_death/run_state.dart';
 import 'package:fl_chart/fl_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:percent_indicator/percent_indicator.dart';
@@ -13,6 +11,7 @@ import 'q_agent.dart';
 import 'simple_agent.dart';
 import 'utils.dart';
 import 'agent_screen.dart';
+import 'run_state.dart';
 
 final co2Data = [];
 
@@ -150,6 +149,46 @@ class _BlackDeathAppState extends State<BlackDeath> {
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
         actions: [
+          PopupMenuButton<Sidekick>(
+            icon: Icon(Icons.more_vert),
+            onSelected: (Sidekick selectedSidekick) {
+              gameManager.setSidekick(selectedSidekick);
+            },
+            itemBuilder: (BuildContext context) => <PopupMenuEntry<Sidekick>>[
+              PopupMenuItem<Sidekick>(
+                value: Sidekick.None,
+                child: ListTile(
+                  leading: Icon(Icons.person),
+                  title: Text('None'),
+                  selected: gameManager.sidekick == Sidekick.None,
+                ),
+              ),
+              PopupMenuItem<Sidekick>(
+                value: Sidekick.System,
+                child: ListTile(
+                  leading: Icon(Icons.computer),
+                  title: Text('System'),
+                  selected: gameManager.sidekick == Sidekick.System,
+                ),
+              ),
+              PopupMenuItem<Sidekick>(
+                value: Sidekick.Custom,
+                child: ListTile(
+                  leading: Icon(Icons.build),
+                  title: Text('Custom'),
+                  selected: gameManager.sidekick == Sidekick.Custom,
+                ),
+              ),
+              PopupMenuItem<Sidekick>(
+                value: Sidekick.AI,
+                child: ListTile(
+                  leading: Icon(Icons.android),
+                  title: Text('AI'),
+                  selected: gameManager.sidekick == Sidekick.AI,
+                ),
+              ),
+            ],
+          ),
           IconButton(
             icon: Icon(isGamePaused ? Icons.play_arrow : Icons.pause),
             iconSize: 50,
@@ -187,18 +226,10 @@ class _BlackDeathAppState extends State<BlackDeath> {
                 pauseGame(); // Pause the game timer
                 Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => AgentScreen(title: 'Configure Agent',)),
+                  MaterialPageRoute(builder: (context) => AgentScreen(gameManager: gameManager)),
                 );
               },
-              iconSize: 35,
-            ),
-            Switch(
-              value: state.isAgentEnabled,
-              onChanged: (value) {
-                setState(() {
-                  state.isAgentEnabled = value;
-                });
-              },
+              iconSize: 25,
             ),
           ],
         ),

@@ -10,7 +10,6 @@ class GameState {
   double carbonCapture; // PPM CO2 reduced due to carbon capture by nature
   double money; // Budget in billion USD/year
   RunState runState;
-  bool isAgentEnabled;
   int consecutiveYearsInRange;
   double researchLevel;
   double lastPpmIncrease;
@@ -26,7 +25,6 @@ class GameState {
     this.carbonCapture = 6,
     this.money = annualBudget,
     this.runState = RunState.Running,
-    this.isAgentEnabled = false,
     this.researchLevel = 1.0,
     this.consecutiveYearsInRange = 0,
     this.lastPpmIncrease = 0,
@@ -41,7 +39,6 @@ class GameState {
       carbonCapture = source.carbonCapture,
       money = source.money,
       runState = source.runState,
-      isAgentEnabled = source.isAgentEnabled,
       researchLevel = source.researchLevel,
       fossilFuelProduction = source.fossilFuelProduction,
       consecutiveYearsInRange = source.consecutiveYearsInRange,

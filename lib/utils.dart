@@ -1,7 +1,5 @@
 import 'dart:math';
 
-import 'package:black_death/game_actions.dart';
-
 // Constants that define the game engine behaviour 
 const double annualBudget = 4; // Budget in billion USD/year. 
 const double energyDemand = 160; // Energy demand by humans in PWh/year
@@ -18,6 +16,8 @@ const double educationBudgetFactor = 0.15; // Factor for calculating education b
 const double yearsToWin = 200; // Years to win the game
 final int gameInstance = Random().nextInt(1000000000);
 
+enum GameAction { buildSolarFactory, increaseResearch, increaseFossilFuelUsage, increaseEducationBudget, decreaseEducationBudget, carbonCapture, doNothing, destroySolarFactory, decreaseFossilFuelUsage, naturalDisaster }
+
 const Map<GameAction, double> capitalExpense = {
   GameAction.buildSolarFactory: 2,
   GameAction.increaseFossilFuelUsage: 1,
@@ -28,3 +28,28 @@ const Map<GameAction, double> capitalExpense = {
   GameAction.doNothing: 0,
   GameAction.naturalDisaster: 0,
 };
+
+enum Sidekick { None, System, Custom, AI}
+
+enum StateVariable { CO2Level, RenewableProduction, FossilFuelConsumption, CarbonCapture, Budget }
+
+enum Comparator { LessThanOrEqual, LessThan, Equal, GreaterThan, GreaterThanOrEqual }
+
+extension ComparatorName on Comparator {
+  String get formattedName {
+    switch (this) {
+      case Comparator.LessThanOrEqual:
+        return '<=';
+      case Comparator.LessThan:
+        return '<';
+      case Comparator.Equal:
+        return '=';
+      case Comparator.GreaterThan:
+        return '>';
+      case Comparator.GreaterThanOrEqual:
+        return '>=';
+      default:
+        return '';
+    }
+  }
+}
