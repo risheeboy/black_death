@@ -1,4 +1,5 @@
 import 'dart:math';
+import 'package:flutter/material.dart';
 
 // Constants that define the game engine behaviour 
 const double annualBudget = 4; // Budget in billion USD/year. 
@@ -6,7 +7,7 @@ const double energyDemand = 160; // Energy demand by humans in PWh/year
 const double co2LevelIdeal = 350; 
 const double co2LevelMax = 450; 
 const double co2LevelMin = 250; 
-const double otherRenewableSources = 10; // Energy from other sources like hydro, geothermal etc
+const double otherRenewableSources = 10; // Energy in TWh, from other sources like hydro, geothermal etc
 const double awarenessIndependentDemand = 20; // Independent demand, like grid
 const double annualAwarenessFractionDecline = 0.1; // Awareness declines by this fraction every year
 const double awarenessDemandFactor = 2; // Factor for calculating renewable demand
@@ -30,26 +31,9 @@ const Map<GameAction, double> capitalExpense = {
 };
 
 enum Sidekick { None, System, Custom, AI}
-
-enum StateVariable { CO2Level, RenewableProduction, FossilFuelConsumption, CarbonCapture, Budget }
-
-enum Comparator { LessThanOrEqual, LessThan, Equal, GreaterThan, GreaterThanOrEqual }
-
-extension ComparatorName on Comparator {
-  String get formattedName {
-    switch (this) {
-      case Comparator.LessThanOrEqual:
-        return '<=';
-      case Comparator.LessThan:
-        return '<';
-      case Comparator.Equal:
-        return '=';
-      case Comparator.GreaterThan:
-        return '>';
-      case Comparator.GreaterThanOrEqual:
-        return '>=';
-      default:
-        return '';
-    }
-  }
-}
+const Map<Sidekick, IconData> sidekickIcons = {
+  Sidekick.None: Icons.person,
+  Sidekick.System: Icons.computer,
+  Sidekick.Custom: Icons.settings,
+  Sidekick.AI: Icons.android,
+};

@@ -25,7 +25,8 @@ class GameTimer {
     if (!_isActive) return;
     Future.delayed(Duration(seconds: 1), () {
       onYearPassed();    
-      if ((gameManager.state.lapsedYears % (5-gameManager.frequencyOfNaturalDisastor)).round() == 0) {
+      if ((gameManager.state.co2Level > 430 || gameManager.state.co2Level < 270) && 
+          (gameManager.state.lapsedYears % (5-gameManager.frequencyOfNaturalDisastor)).round() == 0) {
         gameManager.takeAction(GameAction.naturalDisaster);
       }
       _yearPassed();

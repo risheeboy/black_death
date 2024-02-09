@@ -34,6 +34,12 @@ class _AgentScreenState extends State<AgentScreen> {
     widget.gameManager.customSidekick.saveRules(rules);
   }
 
+  void loadDefaultRules() {
+    setState(() {
+      rules = widget.gameManager.customSidekick.loadDefaultRules()!;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -41,8 +47,8 @@ class _AgentScreenState extends State<AgentScreen> {
         title: Text('Configure Agent'),
         actions: [
           IconButton(
-            icon: Icon(Icons.save),
-            onPressed: saveRules,
+            icon: Icon(Icons.refresh),
+            onPressed: loadDefaultRules,
           ),
         ],
       ),

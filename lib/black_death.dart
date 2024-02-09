@@ -148,62 +148,10 @@ class _BlackDeathAppState extends State<BlackDeath> {
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
       appBar: AppBar(
-        actions: [
-          PopupMenuButton<Sidekick>(
-            icon: Icon(Icons.more_vert),
-            onSelected: (Sidekick selectedSidekick) {
-              gameManager.setSidekick(selectedSidekick);
-            },
-            itemBuilder: (BuildContext context) => <PopupMenuEntry<Sidekick>>[
-              PopupMenuItem<Sidekick>(
-                value: Sidekick.None,
-                child: ListTile(
-                  leading: Icon(Icons.person),
-                  title: Text('None'),
-                  selected: gameManager.sidekick == Sidekick.None,
-                ),
-              ),
-              PopupMenuItem<Sidekick>(
-                value: Sidekick.System,
-                child: ListTile(
-                  leading: Icon(Icons.computer),
-                  title: Text('System'),
-                  selected: gameManager.sidekick == Sidekick.System,
-                ),
-              ),
-              PopupMenuItem<Sidekick>(
-                value: Sidekick.Custom,
-                child: ListTile(
-                  leading: Icon(Icons.build),
-                  title: Text('Custom'),
-                  selected: gameManager.sidekick == Sidekick.Custom,
-                ),
-              ),
-              PopupMenuItem<Sidekick>(
-                value: Sidekick.AI,
-                child: ListTile(
-                  leading: Icon(Icons.android),
-                  title: Text('AI'),
-                  selected: gameManager.sidekick == Sidekick.AI,
-                ),
-              ),
-            ],
-          ),
-          IconButton(
-            icon: Icon(isGamePaused ? Icons.play_arrow : Icons.pause),
-            iconSize: 50,
-            color: Color(0xFF858585),
-            onPressed: () {
-              if (isGamePaused) {
-                resumeGame();
-              } else {
-                pauseGame();
-              }
-            },
-          ),
-        ],
-        backgroundColor: Color.fromARGB(255, 75, 57, 239),
+        backgroundColor: Colors.white, // Change AppBar background color to white
         automaticallyImplyLeading: false,
+        centerTitle: false,
+        elevation: 5,
         title: Row(
           mainAxisSize: MainAxisSize.max,
           mainAxisAlignment: MainAxisAlignment.start,
@@ -213,28 +161,116 @@ class _BlackDeathAppState extends State<BlackDeath> {
                 '🗲 Black Death 🗲',
                 textAlign: TextAlign.start,
                 style: TextStyle(
-                      fontFamily: 'Outfit',
-                      color: Colors.white,
-                      fontSize: 22,
-                    ),
+                  fontFamily: 'Bubblegum Sans',
+                  color: Colors.black,
+                  fontSize: 22,
+                  //fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            IconButton(
-              icon: Icon(Icons.smart_toy),
-              color: Color(0xFF858585),
-              onPressed: () {
-                pauseGame(); // Pause the game timer
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(builder: (context) => AgentScreen(gameManager: gameManager)),
-                );
-              },
-              iconSize: 25,
             ),
           ],
         ),
-        centerTitle: false,
-        elevation: 5,
+        actions: [
+          Row(
+            children: [
+              Text(
+                'Sidekick:',
+                style: TextStyle(
+                  color: Colors.black,
+                  fontSize: 14,
+                ),
+              ),
+              PopupMenuButton<Sidekick>(
+                icon: Icon(
+                sidekickIcons[gameManager.sidekick],
+                color: Colors.black, // Change icon color to black
+                size: 24, // Change icon size to medium
+              ),
+                onSelected: (Sidekick selectedSidekick) {
+                  gameManager.setSidekick(selectedSidekick);
+                },
+                itemBuilder: (BuildContext context) => <PopupMenuEntry<Sidekick>>[
+                  PopupMenuItem<Sidekick>(
+                    value: Sidekick.None,
+                    child: ListTile(
+                      leading: Icon(
+                        sidekickIcons[Sidekick.None],
+                        color: Colors.black, // Change icon color to black
+                        size: 24, // Change icon size to medium
+                      ),
+                      title: Text('None'),
+                      selected: gameManager.sidekick == Sidekick.None,
+                    ),
+                  ),
+                  PopupMenuItem<Sidekick>(
+                    value: Sidekick.System,
+                    child: ListTile(
+                      leading: Icon(
+                        sidekickIcons[Sidekick.System],
+                        color: Colors.black, // Change icon color to black
+                        size: 24, // Change icon size to medium
+                      ),
+                      title: Text('System'),
+                      selected: gameManager.sidekick == Sidekick.System,
+                    ),
+                  ),
+                  PopupMenuItem<Sidekick>(
+                    value: Sidekick.Custom,
+                    child: ListTile(
+                      leading: Icon(
+                        sidekickIcons[Sidekick.Custom],
+                        color: Colors.black, // Change icon color to black
+                        size: 24, // Change icon size to medium
+                      ),
+                      title: Text('Custom'),
+                      selected: gameManager.sidekick == Sidekick.Custom,
+                    ),
+                  ),
+                  PopupMenuItem<Sidekick>(
+                    value: Sidekick.AI,
+                    child: ListTile(
+                      leading: Icon(
+                        sidekickIcons[Sidekick.AI],
+                        color: Colors.black, // Change icon color to black
+                        size: 24, // Change icon size to medium
+                      ),
+                      title: Text('AI'),
+                      selected: gameManager.sidekick == Sidekick.AI,
+                    ),
+                  ),
+                ],
+              ),
+              IconButton(
+                icon: Icon(
+                    Icons.build,
+                  color: Colors.black, // Change icon color to black
+                ),
+                onPressed: () {
+                  pauseGame(); // Pause the game timer
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (context) => AgentScreen(gameManager: gameManager)),
+                  );
+                },
+                iconSize: 20, // Change icon size to medium
+              ),
+              IconButton(
+                icon: Icon(
+                  isGamePaused ? Icons.play_arrow : Icons.pause,
+                  color: Colors.black, // Change icon color to black
+                ),
+                iconSize: 30, // Change icon size to medium
+                onPressed: () {
+                  if (isGamePaused) {
+                    resumeGame();
+                  } else {
+                    pauseGame();
+                  }
+                },
+              ),
+            ],
+          ),
+        ],
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -251,280 +287,370 @@ class _BlackDeathAppState extends State<BlackDeath> {
         child: Column(
           mainAxisSize: MainAxisSize.max,
           children: [
-            Wrap(
-              spacing: 0,
-              runSpacing: 0,
-              alignment: WrapAlignment.start,
-              crossAxisAlignment: WrapCrossAlignment.start,
-              direction: Axis.horizontal,
-              runAlignment: WrapAlignment.start,
-              verticalDirection: VerticalDirection.down,
-              clipBehavior: Clip.none,
-              children: [
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.solar_power_rounded,
-                        color: Color.fromARGB(255, 149, 161, 172),
-                        size: 24,
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Tooltip(
-                              message: 'Renewable Energy Production',
-                              child: Text('Renewable', style: TextStyle(fontSize: 14)),
-                            ),
-                            SizedBox(
-                              height: 30,
-                              width: 30,
-                              child: IconButton(
-                                padding: EdgeInsets.zero, // remove default padding
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: Text("Renewable Energy Production", style: TextStyle(fontSize: 14)),
-                                      content: Text(
-                                          "Renewable energy production is the process of generating electricity from renewable energy sources. It is a key action to reduce CO2 levels.", 
-                                          style: TextStyle(fontSize: 12),
-                                          ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: Text("OK"),
-                                        ),
-                                      ],
-                                    ),
-                                  );
-                                },
-                                icon: Icon(Icons.info_outline, size: 20), // you can also adjust the size of the icon here
+            Divider(
+              thickness: 1,
+              color: Color.fromARGB(204, 255, 255, 255),
+            ),
+            // Game Actions Section
+            Align(
+              alignment: AlignmentDirectional(0, 0),
+              child: Card(
+                clipBehavior: Clip.antiAliasWithSaveLayer,
+                color: Colors.white,
+                elevation: 4,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Padding(
+                  padding: EdgeInsets.symmetric(vertical: 8), // Add top and bottom padding
+                  child: Align(
+                    alignment: AlignmentDirectional(0, 0),
+                    child: Wrap(
+                      spacing: 0,
+                      runSpacing: 0,
+                      alignment: WrapAlignment.start,
+                      crossAxisAlignment: WrapCrossAlignment.start,
+                      direction: Axis.horizontal,
+                      runAlignment: WrapAlignment.start,
+                      verticalDirection: VerticalDirection.down,
+                      clipBehavior: Clip.none,
+                      children: [
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.solar_power_rounded,
+                                color: Color.fromARGB(255, 149, 161, 172),
+                                size: 24,
                               ),
-                            )                                                                                                                                                                                                                                                 ,
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30,
-                        width: 30,
-                        child: IconButton.filledTonal(
-                          padding: EdgeInsets.zero,
-                          color: Color.fromARGB(255, 75, 57, 239),
-                          icon: Icon(
-                            Icons.remove,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            size: 15,
-                          ),
-                          onPressed: () => gameManager.takeAction(GameAction.destroySolarFactory)
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
-                        child: Text(
-                          state.solarProduction.toString(),
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30,
-                        width: 30,
-                        child: IconButton.filledTonal(
-                          padding: EdgeInsets.zero,
-                          color: Color.fromARGB(255, 75, 57, 239),
-                          icon: Icon(
-                            Icons.add,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            size: 15,
-                          ),
-                          onPressed: () => gameManager.takeAction(GameAction.buildSolarFactory)
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.factory_rounded,
-                        color: Color.fromARGB(255, 149, 161, 172),
-                        size: 24,
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Tooltip(
-                              message: 'Fossil Fuel Usage',
-                              child: Text('Fossil Fuel', style: TextStyle(fontSize: 14)),
-                            ),
-                            SizedBox(
-                              height: 30,
-                              width: 30,
-                              child: IconButton(
-                                padding: EdgeInsets.zero, // remove default padding
-                                onPressed: () {
-                                  showDialog(
-                                    context: context,
-                                    builder: (context) => AlertDialog(
-                                      title: Text("Fossil Fuel Usage", style: TextStyle(fontSize: 14)),
-                                      content: Text(
-                                          "Renewable energy production is the process of generating electricity from renewable energy sources. It is a key action to reduce CO2 levels.", 
-                                          style: TextStyle(fontSize: 12),
-                                          ),
-                                      actions: [
-                                        TextButton(
-                                          onPressed: () => Navigator.pop(context),
-                                          child: Text("OK"),
-                                        ),
-                                      ],
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Tooltip(
+                                      message: 'Renewable Energy Production',
+                                      child: Text('Renewables', style: TextStyle(fontSize: 14)),
                                     ),
-                                  );
-                                },
-                                icon: Icon(Icons.info_outline, size: 20), // you can also adjust the size of the icon here
+                                    SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero, // remove default padding
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text("Renewable Energy Production", style: TextStyle(fontSize: 14)),
+                                              content: Text(
+                                                  "Renewable energy production is the process of generating electricity from renewable energy sources. It is a key action to reduce CO2 levels.", 
+                                                  style: TextStyle(fontSize: 12),
+                                                  ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: Text("OK"),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        icon: Icon(Icons.info_outline, size: 20), // you can also adjust the size of the icon here
+                                      ),
+                                    )                                                                                                                                                                                                                                                 ,
+                                  ],
+                                ),
                               ),
-                            )                                                                                                                                                                                                                                                 ,
-                          ],
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30,
-                        width: 30,
-                        child: IconButton.filledTonal(
-                          padding: EdgeInsets.zero,
-                          color: Color.fromARGB(255, 75, 57, 239),
-                          icon: Icon(
-                            Icons.remove,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            size: 15,
+                              Ink(
+                                decoration: const ShapeDecoration(
+                                  color: Colors.blue,
+                                  shape: CircleBorder(),
+                                ),
+                                child: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(
+                                      Icons.remove,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                      size: 15,
+                                    ),
+                                    onPressed: () => gameManager.takeAction(GameAction.destroySolarFactory)
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                                child: Container(
+                                  constraints: BoxConstraints(minWidth: 20),
+                                  child: Text(
+                                    state.solarProduction.toString(),
+                                    style: TextStyle(fontSize: 14),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                              Ink(
+                                decoration: const ShapeDecoration(
+                                  color: Colors.blue,
+                                  shape: CircleBorder(),
+                                ),
+                                child: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(
+                                      Icons.add,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                      size: 15,
+                                    ),
+                                    onPressed: () => gameManager.takeAction(GameAction.buildSolarFactory)
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          onPressed: () => gameManager.takeAction(GameAction.decreaseFossilFuelUsage)
                         ),
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
-                        child: Text(
-                          state.fossilFuelProduction.toString(),
-                          style: TextStyle(  fontSize: 14),
-                        ),
-                      ),
-                      SizedBox(
-                        height: 30,
-                        width: 30,
-                        child: IconButton.filledTonal(
-                          padding: EdgeInsets.zero,
-                          color: Color.fromARGB(255, 75, 57, 239),
-                          icon: Icon(
-                            Icons.add,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                            size: 15,
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.factory_rounded,
+                                color: Color.fromARGB(255, 149, 161, 172),
+                                size: 24,
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                                child: Row(
+                                  mainAxisSize: MainAxisSize.min,
+                                  children: [
+                                    Tooltip(
+                                      message: 'Fossil Fuel Usage',
+                                      child: Text('Fossil Fuel', style: TextStyle(fontSize: 14)),
+                                    ),
+                                    SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero,
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text("Fossil Fuel Usage", style: TextStyle(fontSize: 14)),
+                                              content: Text(
+                                                  "Renewable energy production is the process of generating electricity from renewable energy sources. It is a key action to reduce CO2 levels.", 
+                                                  style: TextStyle(fontSize: 12),
+                                                  ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: Text("OK"),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        icon: Icon(Icons.info_outline, size: 20), // you can also adjust the size of the icon here
+                                      ),
+                                    )                                                                                                                                                                                                                                                 ,
+                                  ],
+                                ),
+                              ),
+                              Ink(
+                                decoration: const ShapeDecoration(
+                                  color: Colors.blue,
+                                  shape: CircleBorder(),
+                                ),
+                                child: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(
+                                      Icons.remove,
+                                      color: Colors.white,
+                                      size: 20,
+                                    ),
+                                    onPressed: () => gameManager.takeAction(GameAction.decreaseFossilFuelUsage),
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                                child: Container(
+                                  constraints: BoxConstraints(minWidth: 20),
+                                  child: Text(
+                                    state.fossilFuelProduction.toString(),
+                                    style: TextStyle(fontSize: 14),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                              Ink(
+                                decoration: const ShapeDecoration(
+                                  color: Colors.blue,
+                                  shape: CircleBorder(),
+                                ),
+                                child: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(
+                                      Icons.add,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                      size: 15,
+                                    ),
+                                    onPressed: () => gameManager.takeAction(GameAction.increaseFossilFuelUsage)
+                                  ),
+                                ),
+                              ),
+                            ],
                           ),
-                          onPressed: () => gameManager.takeAction(GameAction.increaseFossilFuelUsage)
                         ),
-                      ),
-                    ],
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.school_outlined,
+                                color: Color.fromARGB(255, 149, 161, 172),
+                                size: 24,
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(5, 0, 12, 0),
+                                child: Text(
+                                  'Education Budget',
+                                  style: TextStyle(  fontSize: 14),
+                                ),
+                              ),
+
+                              Ink(
+                                decoration: const ShapeDecoration(
+                                  color: Colors.blue,
+                                  shape: CircleBorder(),
+                                ),
+                                child: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(
+                                      Icons.remove,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                      size: 15,
+                                    ),
+                                    onPressed: () => gameManager.takeAction(GameAction.decreaseEducationBudget), 
+                                  ),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                                child: Container(
+                                  constraints: BoxConstraints(minWidth: 20),
+                                  child: Text(
+                                    state.educationBudget.toString(),
+                                    style: TextStyle(fontSize: 14),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                              Ink(
+                                decoration: const ShapeDecoration(
+                                  color: Colors.blue,
+                                  shape: CircleBorder(),
+                                ),
+                                child: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(
+                                      Icons.add,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                      size: 15,
+                                    ),
+                                    onPressed: () => gameManager.takeAction(GameAction.increaseEducationBudget),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Padding(
+                          padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.science_outlined,
+                                color: Color.fromARGB(255, 149, 161, 172),
+                                size: 24,
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(5, 0, 12, 0),
+                                child: Text(
+                                  'Climate Research',
+                                  style: TextStyle(  fontSize: 14),
+                                ),
+                              ),
+                              Padding(
+                                padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
+                                child: Container(
+                                  constraints: BoxConstraints(minWidth: 20),
+                                  child: Text(
+                                    state.researchLevel.toString(),
+                                    style: TextStyle(fontSize: 14),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
+                              ),
+                              Ink(
+                                decoration: const ShapeDecoration(
+                                  color: Colors.blue,
+                                  shape: CircleBorder(),
+                                ),
+                                child: SizedBox(
+                                  height: 30,
+                                  width: 30,
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(
+                                      Icons.add,
+                                      color: Color.fromARGB(255, 255, 255, 255),
+                                      size: 15,
+                                    ),
+                                    onPressed: () => gameManager.takeAction(GameAction.increaseResearch),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.school_outlined,
-                        color: Color.fromARGB(255, 149, 161, 172),
-                        size: 24,
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 12, 0),
-                        child: Text(
-                          'Climate Education Budget',
-                          style: TextStyle(  fontSize: 14),
-                        ),
-                      ),
-                      IconButton.filledTonal(
-                        color: Color.fromARGB(255, 75, 57, 239),
-                        icon: Icon(
-                          Icons.remove,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          size: 15,
-                        ),
-                        onPressed: () => gameManager.takeAction(GameAction.decreaseEducationBudget), 
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
-                        child: Text(
-                          state.education_budget.toString(),
-                          style: TextStyle(  fontSize: 14),
-                        ),
-                      ),
-                      IconButton.filledTonal(
-                        color: Color.fromARGB(255, 75, 57, 239),
-                        icon: Icon(
-                          Icons.add,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          size: 15,
-                        ),
-                        onPressed: () => gameManager.takeAction(GameAction.increaseEducationBudget),
-                      ),
-                    ],
-                  ),
-                ),
-                Padding(
-                  padding: EdgeInsetsDirectional.fromSTEB(20, 5, 20, 5),
-                  child: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Icon(
-                        Icons.science_outlined,
-                        color: Color.fromARGB(255, 149, 161, 172),
-                        size: 24,
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 12, 0),
-                        child: Text(
-                          'Climate Research',
-                          style: TextStyle(  fontSize: 14),
-                        ),
-                      ),
-                      Padding(
-                        padding: EdgeInsetsDirectional.fromSTEB(5, 0, 5, 0),
-                        child: Text(
-                          '4',
-                          style: TextStyle(  fontSize: 14),
-                        ),
-                      ),
-                      IconButton.filledTonal(
-                        color: Color.fromARGB(255, 75, 57, 239),
-                        icon: Icon(
-                          Icons.add,
-                          color: Color.fromARGB(255, 255, 255, 255),
-                          size: 15,
-                        ),
-                        onPressed: () => gameManager.takeAction(GameAction.increaseResearch),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ),  
+              ),
             ),
             Divider(
               thickness: 1,
               color: Color.fromARGB(204, 255, 255, 255),
             ),
+            // Game Status Section
             Align(
               alignment: AlignmentDirectional(0, 0),
               child: Card(
                 clipBehavior: Clip.antiAliasWithSaveLayer,
-                color: Color.fromARGB(255, 254, 255, 255),
+                color: Colors.white,
                 elevation: 4,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -686,17 +812,14 @@ class _BlackDeathAppState extends State<BlackDeath> {
                                   Color.fromARGB(255, 149, 161, 172),
                               size: 20,
                             ),
-                            Text(
-                              state.money.toStringAsFixed(2),
-                              style: TextStyle(  fontSize: 14),
-                            ),
-                            Padding(
-                              padding:
-                                  EdgeInsetsDirectional.fromSTEB(0, 0, 5, 0),
-                              child: Text(
-                                ' B',
-                                style:
-                                    TextStyle(  fontSize: 14),
+                            Container(
+                              constraints: BoxConstraints(minWidth: 30),
+                              child: Center(
+                                child: Text(
+                                  state.money.toStringAsFixed(0) + ' B',
+                                  style: TextStyle(fontSize: 14),
+                                  textAlign: TextAlign.center,
+                                ),
                               ),
                             ),
                           ],
@@ -812,8 +935,20 @@ class _BlackDeathAppState extends State<BlackDeath> {
                           sideTitles: SideTitles(showTitles: false), // Hide right titles
                         ),
                       ),
-
-                      lineBarsData: _createData(state),
+                      lineBarsData: _createData(state).map((lineData) {
+                        return lineData.copyWith(
+                          dotData: FlDotData(show: false),
+                        );
+                      }).toList(),
+                      extraLinesData: ExtraLinesData(
+                        horizontalLines: [
+                          HorizontalLine(y: 430, color: Color.fromARGB(255, 219, 177, 50), strokeWidth: 1,),
+                          HorizontalLine(y: 360, color: Color.fromARGB(255, 160, 180, 130), strokeWidth: 2,),
+                          HorizontalLine(y: 350, color: Color.fromARGB(255, 160, 180, 130), strokeWidth: 3,),
+                          HorizontalLine(y: 340, color: Color.fromARGB(255, 160, 180, 130), strokeWidth: 2,),
+                          HorizontalLine(y: 270, color: Color.fromARGB(255, 219, 188, 95), strokeWidth: 1,),
+                        ],
+                      ),
                     ),
                   ),
                 ),

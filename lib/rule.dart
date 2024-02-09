@@ -46,3 +46,46 @@ class Condition {
     };
   }
 }
+
+enum StateVariable { CO2Level, FossilFuelProduction, CarbonCapture, Budget, AnnualPpmIncrease, RenewableSupplyShortage, EducationBudget }
+
+enum Comparator { LessThanOrEqual, LessThan, Equal, GreaterThan, GreaterThanOrEqual }
+
+extension ComparatorName on Comparator {
+  String get formattedName {
+    switch (this) {
+      case Comparator.LessThanOrEqual:
+        return '<=';
+      case Comparator.LessThan:
+        return '<';
+      case Comparator.Equal:
+        return '=';
+      case Comparator.GreaterThan:
+        return '>';
+      case Comparator.GreaterThanOrEqual:
+        return '>=';
+      default:
+        return '';
+    }
+  }
+}
+
+List<Rule> defaultRules() {
+  List<Rule> defaultRules = [];
+  defaultRules.add(Rule.withConditions(GameAction.buildSolarFactory, [
+    Condition(StateVariable.CO2Level, Comparator.GreaterThan, 400),
+    Condition(StateVariable.AnnualPpmIncrease, Comparator.GreaterThan, 0),
+    Condition(StateVariable.RenewableSupplyShortage, Comparator.GreaterThan, 0),
+  ]));
+  defaultRules.add(Rule.withConditions(GameAction.increaseEducationBudget, [
+    Condition(StateVariable.CO2Level, Comparator.GreaterThan, 400),
+    Condition(StateVariable.AnnualPpmIncrease, Comparator.GreaterThan, 0),
+    Condition(StateVariable.RenewableSupplyShortage, Comparator.LessThanOrEqual, 0),
+  ]));
+  defaultRules.add(Rule.withConditions(GameAction.decreaseEducationBudget, [
+    Condition(StateVariable.CO2Level, Comparator.LessThan, 420),
+    Condition(StateVariable.AnnualPpmIncrease, Comparator.LessThanOrEqual, 0),
+    Condition(StateVariable.EducationBudget, Comparator.GreaterThan, 0),
+  ]));
+  return defaultRules;
+}

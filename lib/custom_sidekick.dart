@@ -11,7 +11,7 @@ class CustomSidekick {
   List<Rule>? rules;
   late String _sessionId;
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
-
+  
   CustomSidekick() {
     SharedPreferences.getInstance().then((prefs) {
       String? retrieved = prefs.getString('sessionId');
@@ -32,8 +32,10 @@ class CustomSidekick {
       StateVariable.CO2Level: state.co2Level,
       StateVariable.Budget: state.money,
       StateVariable.CarbonCapture: state.carbonCapture,
-      StateVariable.RenewableProduction: state.renewableSupply(),
-      StateVariable.FossilFuelConsumption: state.fossilFuelProduction,
+      StateVariable.FossilFuelProduction: state.fossilFuelProduction,
+      StateVariable.AnnualPpmIncrease: state.lastPpmIncrease,
+      StateVariable.RenewableSupplyShortage: state.supplyShortage(),
+      StateVariable.EducationBudget: state.educationBudget.toDouble(),
     };
     return executeRules(stateVariables);
   }
@@ -76,10 +78,16 @@ class CustomSidekick {
     return GameAction.doNothing;
   }
 
+  List<Rule>? loadDefaultRules() {
+    rules = defaultRules();
+    return rules;
+  }
+
   List<Rule>? loadRules() {
     _firestore.collection('rules').where('sessionId', isEqualTo: _sessionId).orderBy('currentTime', descending: true).limit(1).get().then((snapshot) {
       if (snapshot.docs.isEmpty) {
-        print('No existing rules for sessionId: $_sessionId');
+        print('No existing rules for sessionId: $_sessionId, so adding default rules.');
+        rules = defaultRules();
       } else {
         List<dynamic> rulesData = snapshot.docs.first.data()['rules'];
         print('Found rules: $rulesData');
@@ -88,7 +96,7 @@ class CustomSidekick {
     });
     return rules;
   }
-  
+
   void saveRules(List<Rule> ruleList) {
     print('Saving rules');
     this.rules = ruleList;

@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'package:black_death/rule.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:audioplayers/audioplayers.dart';
 
@@ -17,6 +16,7 @@ class GameManager {
   SimpleAgent simpleAgent;
   CustomSidekick customSidekick = CustomSidekick();//TODO initialize rules
   QAgent qagent;
+  Random random = new Random();
 
   GameState _previousState = GameState();//TODO check creating new GameState is correct logic
   final List<_QAction> _qactions = [];
@@ -31,9 +31,10 @@ class GameManager {
     state.lapsedYears++;
     state.money += annualBudget;
     print("Year: ${state.lapsedYears} Money: ${state.money}");
-    print("Demand: ${state.renewableDemand()} Supply: ${state.renewableSupply()} Awareness: ${state.awareness.round()} solar: ${state.solarProduction.round()} fossil: ${state.fossilFuelProduction.round()}");
-    //print("PPM Added: ${state.ppmAnnualyAddedByFossilFuels().round()} Carbon Capture: ${state.carbonCapture}");
-    double educationSpend = min(state.money, state.education_budget.toDouble());
+    print("Demand: ${state.renewableDemand().round()} Supply: ${state.renewableSupply()} Awareness: ${state.awareness.round()} solar: ${state.solarProduction.round()} fossil: ${state.fossilFuelProduction.round()}");
+    //print("Fossil PPM Added: ${state.ppmAnnualyAddedByFossilFuels().round()} Carbon Capture: ${state.carbonCapture}");
+    print("PPM: ${state.co2Level.round()} Last PPM Added: ${state.lastPpmIncrease.round()} Supply Shortage: ${state.supplyShortage().round()}");
+    double educationSpend = min(state.money, state.educationBudget.toDouble());
     state.awareness += (educationSpend * educationBudgetFactor) * (1 - annualAwarenessFractionDecline);
     state.money -= educationSpend; // Capex in Billion USD
 
@@ -119,10 +120,10 @@ class GameManager {
         state.fossilFuelProduction++;
         state.money -= capex;
       } else if(action == GameAction.increaseEducationBudget) {
-        state.education_budget++;
+        state.educationBudget++;
       } else if(action == GameAction.decreaseEducationBudget) {
-        if(state.education_budget > 0)
-          state.education_budget--;
+        if(state.educationBudget > 0)
+          state.educationBudget--;
       } else if(action == GameAction.carbonCapture) {
         state.carbonCapture++;
         state.money -= capex;
@@ -138,9 +139,11 @@ class GameManager {
           state.fossilFuelProduction--;
         state.money -= capex;
       } else if (action == GameAction.naturalDisaster) {
-          var rng = new Random(10);
           if (state.solarProduction > 0) {
-            int numToDestroy = rng.nextInt(state.solarProduction);
+            int numToDestroy = random.nextInt(3); // 4 is upper limit
+            if (numToDestroy > state.solarProduction) {
+              numToDestroy = state.solarProduction;
+            }
             state.solarProduction -= numToDestroy;
           }
           state.money -= capex;
