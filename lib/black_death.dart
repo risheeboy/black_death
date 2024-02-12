@@ -761,11 +761,9 @@ class _BlackDeathAppState extends State<BlackDeath> {
     return Scaffold(
       appBar: AppBarWidget(
         onSidekickSelected: (selectedSidekick) {
-          print('StartScreen onSidekickSelected $selectedSidekick');
           setState(() {
             gameManager.setSidekick(selectedSidekick);
           });
-          print('StartScreen sidekick ${gameManager.sidekick}');
         },
         onBuildPressed: () {
           Navigator.push(

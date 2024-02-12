@@ -19,6 +19,7 @@ class CustomSidekick {
         _sessionId = const Uuid().v4();
         prefs.setString('sessionId', _sessionId);
         print('New sessionId: $_sessionId');
+        rules = loadDefaultRules();
       } else {
         _sessionId = retrieved;
         print('Retrieved sessionId: $_sessionId');
