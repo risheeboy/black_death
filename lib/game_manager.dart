@@ -17,6 +17,7 @@ class GameManager {
   CustomSidekick customSidekick = CustomSidekick();//TODO initialize rules
   QAgent qagent;
   Random random = new Random();
+  double globalEnergyUsage = 160; // in TWh
 
   GameState _previousState = GameState();//TODO check creating new GameState is correct logic
   final List<_QAction> _qactions = [];
@@ -28,6 +29,7 @@ class GameManager {
 
   void updateGameState() {
     // GameState oldState = GameState.clone(state);
+    double totalEnergyProduced = state.solarProduction + state.fossilFuelProduction; // solarEnergyFactor and fossilFuelEnergyFactor should be defined based on your game's logic
     state.lapsedYears++;
     state.money += annualBudget;
     print("Year: ${state.lapsedYears} Money: ${state.money}");
@@ -37,6 +39,14 @@ class GameManager {
     double educationSpend = min(state.money, state.educationBudget.toDouble());
     state.awareness += (educationSpend * educationBudgetFactor) * (1 - annualAwarenessFractionDecline);
     state.money -= educationSpend; // Capex in Billion USD
+
+    if (totalEnergyProduced < globalEnergyUsage) {
+      // Stop gaining money if energy production is less than global demand
+      state.money += 0; // No money gain
+    } else {
+      // Continue gaining money as usual
+      state.money += annualBudget;
+    }
 
     if (state.co2Level > co2LevelMax) {
       state.runState = RunState.LostTooHigh;
@@ -81,7 +91,7 @@ class GameManager {
     print("----------------");
   }
 
-  void agentAction() {
+  void agentAction({Function? onNaturalDisaster}) {
     GameAction action;
     switch(sidekick) {
       case Sidekick.None:
@@ -107,7 +117,7 @@ class GameManager {
     _pendingActions.add(action);
   }
 
-  void takeAction(GameAction action) {
+  void takeAction(GameAction action, {Function? onNaturalDisaster}) {
     if (state.runState != RunState.Running) return;
     playAudioButton();
     double capex = capitalExpense[action] ?? 0;
@@ -139,16 +149,15 @@ class GameManager {
           state.fossilFuelProduction--;
         state.money -= capex;
       } else if (action == GameAction.naturalDisaster) {
+        onNaturalDisaster?.call();
           if (state.solarProduction > 0) {
-            int numToDestroy = random.nextInt(3); // 4 is upper limit
+            int numToDestroy = random.nextInt(3)+1; // 5 is upper limit
             if (numToDestroy > state.solarProduction) {
               numToDestroy = state.solarProduction;
             }
             state.solarProduction -= numToDestroy;
           }
-          state.money -= capex;
         }
-        state.money -= capex;
       } else {
         print('Sorry, capex $capex > available money ${state.money}');//TODO play warning sound and inform user
       }

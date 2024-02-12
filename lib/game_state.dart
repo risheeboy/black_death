@@ -15,6 +15,8 @@ class GameState {
   double lastPpmIncrease;
   int educationBudget;
   double fossilFuelProduction; // Fossil fuel production in PWh/year
+  bool isDisasterHappening;
+
 
   GameState({
     this.co2Level = 420,
@@ -29,6 +31,7 @@ class GameState {
     this.consecutiveYearsInRange = 0,
     this.lastPpmIncrease = 0,
     this.educationBudget = 0,
+    this.isDisasterHappening = false,
   });
 
   GameState.clone(GameState source)
@@ -43,7 +46,10 @@ class GameState {
       fossilFuelProduction = source.fossilFuelProduction,
       consecutiveYearsInRange = source.consecutiveYearsInRange,
       lastPpmIncrease = source.lastPpmIncrease,
-      educationBudget = source.educationBudget;
+      educationBudget = source.educationBudget,
+      isDisasterHappening = source.isDisasterHappening;
+
+  double otherRenewableSources = 0;
 
 
   bool isGameOver() {
