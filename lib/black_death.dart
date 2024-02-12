@@ -15,266 +15,46 @@ import 'run_state.dart';
 
 final co2Data = [];
 
-
-
 class BlackDeath extends StatefulWidget {
   @override
   _BlackDeathAppState createState() => _BlackDeathAppState();
 }
 
-class StartScreen extends StatelessWidget {
-  final VoidCallback onStartGame;
-
-  const StartScreen({Key? key, required this.onStartGame}) : super(key: key);
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          color: Colors.lightBlue[50],
-          image: DecorationImage(
-            image: AssetImage('assets/images/earth_smoke.png'),
-            fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(
-                Colors.white.withOpacity(0.1), BlendMode.dstATop), 
-          ),
-        ),
-        child: Center(
-          child: SingleChildScrollView( // For scrolling
-            padding: EdgeInsets.all(20),
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Text(
-'''Goal of the game is to stabilize CO2 levels to save the planet from climate disaster.
-
-You can use a sidekick, define your own sidekick and keep trying different rules till you find an efficient solution.
-
-Game actions and results are used to train an AI model, that learns from all users who play the game.
-''',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87,
-                  ),
-                ),
-                SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: onStartGame,
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Color.fromARGB(255, 97, 160, 94), // Button color
-                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
-                  ),
-                  child: Text('Start Game', style: TextStyle(fontSize: 16, color: Colors.white),),
-                ),
-                  Text('''
-
-How to Play:\n
-Decision-Making:
-Choose from a range of actions: build renewable energy factories, manage fossil fuel usage, and allocate funds for climate education.
-Every action has a direct effect on resources, CO2 levels, and the game's environment.
-
-Resource Allocation:
-Strategically allocate your budget between various environmental actions.
-Balancing your budget is crucial for sustainable progress.
-
-Research and Development:
-Invest in research to unlock new capabilities and enhance your strategy.
-Research decisions impact your budget and environmental outcomes.
-
-
-Interactive Learning:
-Engage with trivia questions throughout the game to earn rewards and enhance your understanding of climate issues.
-
-End Game:
-The game concludes based on your ability to stabilize CO2 levels over a period.
-Different endings reflect the success or failure of your environmental strategies.
-'''
-/*Why Play Black Death?
-Educational and Fun: Learn about climate management while enjoying a strategic gaming experience.
-Real-World Application: Gain insights into real-world environmental challenges and management strategies.*/, // Instructions
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: Colors.black87, // Text color
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-}
-
 class _BlackDeathAppState extends State<BlackDeath> {
-  late GameManager gameManager;
+  GameManager gameManager = GameManager(GameState(), SimpleAgent(), QAgent());
   late GameTimer gameTimer;
   bool isGameStarted = false;
   bool isGamePaused = false;
   bool showRedFlash = false;
-  void startGame() {
-    setState(() {
-      isGameStarted = true;
-      GameState state = GameState();
-      gameManager = GameManager(state, SimpleAgent(), QAgent());
-      gameTimer = GameTimer(
-        onYearPassed: () {
-          // Timer logic here
-          setState(() {
-            gameManager.updateGameState();
-            if (state.isGameOver()) {
-              _gameOver(state);
-              gameTimer.stop();
-            }
-            co2Data.add(ChartPoint(state.lapsedYears, state.co2Level));
-          });
-        },
-        onAgentAction: () {
-          setState(() {
-            gameManager.agentAction();
-          });
-        },
-        gameManager: gameManager,
-      );
-      gameTimer.start();
-    });
-  }
+
   @override
   Widget build(BuildContext context) {
-    return isGameStarted ? buildGameScreen() : StartScreen(onStartGame: startGame);
+    return isGameStarted ? buildGameScreen() : buildStartScreen();
   }
 
   Widget buildGameScreen() {
     GameState state = gameManager.state;
     return Scaffold(
       backgroundColor: Color.fromARGB(255, 255, 255, 255),
-      appBar: AppBar(
-        backgroundColor: Colors.white, // Change AppBar background color to white
-        automaticallyImplyLeading: false,
-        centerTitle: false,
-        elevation: 5,
-        title: Row(
-          mainAxisSize: MainAxisSize.max,
-          mainAxisAlignment: MainAxisAlignment.start,
-          children: [
-            Expanded(
-              child: Text(
-                '🗲 Black Death 🗲',
-                textAlign: TextAlign.start,
-                style: TextStyle(
-                  fontFamily: 'Bubblegum Sans',
-                  color: Colors.black,
-                  fontSize: 22,
-                  //fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          Row(
-            children: [
-              Text(
-                'Sidekick:',
-                style: TextStyle(
-                  color: Colors.black,
-                  fontSize: 14,
-                ),
-              ),
-              PopupMenuButton<Sidekick>(
-                icon: Icon(
-                sidekickIcons[gameManager.sidekick],
-                color: Colors.black, // Change icon color to black
-                size: 24, // Change icon size to medium
-              ),
-                onSelected: (Sidekick selectedSidekick) {
-                  gameManager.setSidekick(selectedSidekick);
-                },
-                itemBuilder: (BuildContext context) => <PopupMenuEntry<Sidekick>>[
-                  PopupMenuItem<Sidekick>(
-                    value: Sidekick.None,
-                    child: ListTile(
-                      leading: Icon(
-                        sidekickIcons[Sidekick.None],
-                        color: Colors.black, // Change icon color to black
-                        size: 24, // Change icon size to medium
-                      ),
-                      title: Text('None'),
-                      selected: gameManager.sidekick == Sidekick.None,
-                    ),
-                  ),
-                  PopupMenuItem<Sidekick>(
-                    value: Sidekick.System,
-                    child: ListTile(
-                      leading: Icon(
-                        sidekickIcons[Sidekick.System],
-                        color: Colors.black, // Change icon color to black
-                        size: 24, // Change icon size to medium
-                      ),
-                      title: Text('System'),
-                      selected: gameManager.sidekick == Sidekick.System,
-                    ),
-                  ),
-                  PopupMenuItem<Sidekick>(
-                    value: Sidekick.Custom,
-                    child: ListTile(
-                      leading: Icon(
-                        sidekickIcons[Sidekick.Custom],
-                        color: Colors.black, // Change icon color to black
-                        size: 24, // Change icon size to medium
-                      ),
-                      title: Text('Custom'),
-                      selected: gameManager.sidekick == Sidekick.Custom,
-                    ),
-                  ),
-                  PopupMenuItem<Sidekick>(
-                    value: Sidekick.AI,
-                    child: ListTile(
-                      leading: Icon(
-                        sidekickIcons[Sidekick.AI],
-                        color: Colors.black, // Change icon color to black
-                        size: 24, // Change icon size to medium
-                      ),
-                      title: Text('AI'),
-                      selected: gameManager.sidekick == Sidekick.AI,
-                    ),
-                  ),
-                ],
-              ),
-              IconButton(
-                icon: Icon(
-                    Icons.build,
-                  color: Colors.black, // Change icon color to black
-                ),
-                onPressed: () {
-                  pauseGame(); // Pause the game timer
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => AgentScreen(gameManager: gameManager)),
-                  );
-                },
-                iconSize: 20, // Change icon size to medium
-              ),
-              IconButton(
-                icon: Icon(
-                  isGamePaused ? Icons.play_arrow : Icons.pause,
-                  color: Colors.black, // Change icon color to black
-                ),
-                iconSize: 30, // Change icon size to medium
-                onPressed: () {
-                  if (isGamePaused) {
-                    resumeGame();
-                  } else {
-                    pauseGame();
-                  }
-                },
-              ),
-            ],
-          ),
-        ],
+      appBar: AppBarWidget(
+        onSidekickSelected: (selectedSidekick) {
+          gameManager.setSidekick(selectedSidekick);
+        },
+        onBuildPressed: () {
+          pauseGame();
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AgentScreen(gameManager: gameManager)),
+          );
+        },
+        onPausePressed: () {
+          if (isGamePaused) {
+            resumeGame();
+          } else {
+            pauseGame();
+          }
+        },
+        gameManager: gameManager,
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -977,6 +757,128 @@ class _BlackDeathAppState extends State<BlackDeath> {
     );
   }
 
+  Widget buildStartScreen() {
+    return Scaffold(
+      appBar: AppBarWidget(
+        onSidekickSelected: (selectedSidekick) {
+          print('StartScreen onSidekickSelected $selectedSidekick');
+          setState(() {
+            gameManager.setSidekick(selectedSidekick);
+          });
+          print('StartScreen sidekick ${gameManager.sidekick}');
+        },
+        onBuildPressed: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (context) => AgentScreen(gameManager: gameManager)),
+          );
+        },
+        onPausePressed: () {},
+        gameManager: gameManager,
+      ),
+      body: Container(
+        decoration: BoxDecoration(
+          color: Colors.lightBlue[50],
+          image: DecorationImage(
+            image: AssetImage('assets/images/earth_smoke.png'),
+            fit: BoxFit.cover,
+            colorFilter: ColorFilter.mode(
+              Colors.white.withOpacity(0.1),
+              BlendMode.dstATop,
+            ),
+          ),
+        ),
+        child: Center(
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(20),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text(
+                  '''
+Goal of the game is to stabilize CO2 levels to save the planet from climate disaster.
+
+You can use a sidekick, define your own sidekick and keep trying different rules till you find an efficient solution.
+
+Game actions and results are used to train an AI model, that learns from all users who play the game.
+''',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+                SizedBox(height: 20),
+                ElevatedButton(
+                  onPressed:() {
+                    isGameStarted = true;
+                    gameTimer = GameTimer(
+                      onYearPassed: () {
+                        setState(() {
+                          gameManager.updateGameState();
+                          if (gameManager.state.isGameOver()) {
+                            _gameOver(gameManager.state);
+                            gameTimer.stop();
+                          }
+                          co2Data.add(ChartPoint(gameManager.state.lapsedYears, gameManager.state.co2Level));
+                        });
+                      },
+                      onAgentAction: () {
+                        setState(() {
+                          gameManager.agentAction();
+                        });
+                      },
+                      gameManager: gameManager,
+                    );
+                    gameTimer.start();
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Color.fromARGB(255, 97, 160, 94),
+                    padding: EdgeInsets.symmetric(horizontal: 50, vertical: 15),
+                  ),
+                  child: Text(
+                    'Start Game',
+                    style: TextStyle(fontSize: 16, color: Colors.white),
+                  ),
+                ),
+                Text(
+                  '''
+
+How to Play:\n
+Decision-Making:
+Choose from a range of actions: build renewable energy factories, manage fossil fuel usage, and allocate funds for climate education.
+Every action has a direct effect on resources, CO2 levels, and the game's environment.
+
+Resource Allocation:
+Strategically allocate your budget between various environmental actions.
+Balancing your budget is crucial for sustainable progress.
+
+Research and Development:
+Invest in research to unlock new capabilities and enhance your strategy.
+Research decisions impact your budget and environmental outcomes.
+
+
+Interactive Learning:
+Engage with trivia questions throughout the game to earn rewards and enhance your understanding of climate issues.
+
+End Game:
+The game concludes based on your ability to stabilize CO2 levels over a period.
+Different endings reflect the success or failure of your environmental strategies.
+''',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.black87,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     gameTimer.stop();
@@ -1116,22 +1018,150 @@ class _BlackDeathAppState extends State<BlackDeath> {
       ),
     );
   }
+}
 
+class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
+  final Function(Sidekick) onSidekickSelected;
+  final VoidCallback onBuildPressed;
+  final VoidCallback onPausePressed;
+  final GameManager gameManager;
 
-  }
+  const AppBarWidget({
+    required this.onSidekickSelected,
+    required this.onBuildPressed,
+    required this.onPausePressed,
+    required this.gameManager,
+  });
 
-  List<LineChartBarData> _createData(GameState state) {
-    return [
-      LineChartBarData(
-        spots: co2Data
-            .map((data) => FlSpot(data.year.toDouble(), data.co2Level))
-            .toList(),
-        isCurved: true,
-        barWidth: 2,
-        color: Colors.blue,
+  @override
+  Size get preferredSize => Size.fromHeight(kToolbarHeight);
+
+  @override
+  Widget build(BuildContext context) {
+    return AppBar(
+      backgroundColor: Colors.white,
+      automaticallyImplyLeading: false,
+      centerTitle: false,
+      elevation: 5,
+      title: Row(
+        mainAxisSize: MainAxisSize.max,
+        mainAxisAlignment: MainAxisAlignment.start,
+        children: [
+          Expanded(
+            child: Text(
+              'Black Death',
+              textAlign: TextAlign.start,
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 22,
+              ),
+            ),
+          ),
+        ],
       ),
-    ];
+      actions: [
+        Row(
+          children: [
+            Text(
+              'Sidekick:',
+              style: TextStyle(
+                color: Colors.black,
+                fontSize: 14,
+              ),
+            ),
+            PopupMenuButton<Sidekick>(
+              icon: Icon(
+                sidekickIcons[gameManager.sidekick],
+                color: Colors.black,
+                size: 24,
+              ),
+              onSelected: onSidekickSelected,
+              itemBuilder: (BuildContext context) => <PopupMenuEntry<Sidekick>>[
+                PopupMenuItem<Sidekick>(
+                  value: Sidekick.None,
+                  child: ListTile(
+                    leading: Icon(
+                      sidekickIcons[Sidekick.None],
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                    title: Text('None'),
+                    selected: gameManager.sidekick == Sidekick.None,
+                  ),
+                ),
+                PopupMenuItem<Sidekick>(
+                  value: Sidekick.System,
+                  child: ListTile(
+                    leading: Icon(
+                      sidekickIcons[Sidekick.System],
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                    title: Text('System'),
+                    selected: gameManager.sidekick == Sidekick.System,
+                  ),
+                ),
+                PopupMenuItem<Sidekick>(
+                  value: Sidekick.Custom,
+                  child: ListTile(
+                    leading: Icon(
+                      sidekickIcons[Sidekick.Custom],
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                    title: Text('Custom'),
+                    selected: gameManager.sidekick == Sidekick.Custom,
+                  ),
+                ),
+                PopupMenuItem<Sidekick>(
+                  value: Sidekick.AI,
+                  child: ListTile(
+                    leading: Icon(
+                      sidekickIcons[Sidekick.AI],
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                    title: Text('AI'),
+                    selected: gameManager.sidekick == Sidekick.AI,
+                  ),
+                ),
+              ],
+            ),
+            IconButton(
+              icon: Icon(
+                Icons.build,
+                color: Colors.black,
+              ),
+              onPressed: onBuildPressed,
+              iconSize: 20,
+            ),
+            IconButton(
+              icon: Icon(
+                gameManager.state.runState == RunState.Paused ? Icons.play_arrow : Icons.pause,
+                color: Colors.black,
+              ),
+              iconSize: 30,
+              onPressed: onPausePressed,
+            ),
+          ],
+        ),
+      ],
+    );
   }
+}
+
+List<LineChartBarData> _createData(GameState state) {
+  return [
+    LineChartBarData(
+      spots: co2Data
+          .map((data) => FlSpot(data.year.toDouble(), data.co2Level))
+          .toList(),
+      isCurved: true,
+      barWidth: 2,
+      color: Colors.blue,
+    ),
+  ];
+}
 
 
 class ChartPoint {
