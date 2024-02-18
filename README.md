@@ -14,8 +14,9 @@ This game introduces the concepts:
 
 ```mermaid
 graph TD
-    Player -->|Action| Game[Game Env]
-    Player -->|Rule Setup| Rules[Sidekick Rules]
+    Player -->|Action| Game[Game Environment]
+    Player -->|Rules Setup| Setup[Setup Page]
+    Setup --> Rules[Sidekick Rules]
     Rules -->|Fetch Player's Rules| Sidekick[Sidekicks]
     Sidekick -->|Action| Game
     Game -->|Batch store actions and states| Gameplay[Gameplay History]
@@ -32,6 +33,7 @@ graph TD
     subgraph Flutter Game
     Game
     Sidekick
+    Setup
     end
 
     subgraph Google Cloud Functions 
