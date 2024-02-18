@@ -14,16 +14,24 @@ This game introduces the concepts:
 
 ```mermaid
 graph TD
-    Game[Flutter Game] -->|User Defines| Rules[Sidekick Rules]
-    Game -->|Batch Persistence| Gameplay[Gameplay History]
+    Player -->|Action| Game[Game Env]
+    Player -->|Rule Setup| Rules[Sidekick Rules]
+    Rules -->|Fetch Player's Rules| Sidekick[Sidekicks]
+    Sidekick -->|Action| Game
+    Game -->|Batch store actions and states| Gameplay[Gameplay History]
     Gameplay --> Trainer[AI Training/Q-Learning]
     Trainer --> Agent[AI Agent/Q-Table]
-    Agent --> Game
+    Agent -->|Best Action for current state| Sidekick
 
     subgraph Google Firestore 
     Rules
     Gameplay
     Agent
+    end
+
+    subgraph Flutter Game
+    Game
+    Sidekick
     end
 
     subgraph Google Cloud Functions 
