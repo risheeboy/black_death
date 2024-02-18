@@ -6,23 +6,19 @@ typedef AgentCallback = void Function();
 class GameTimer {
   final YearCallback onYearPassed;
   final AgentCallback onAgentAction;
-  bool _isActive = false;
   GameManager gameManager;
 
   GameTimer({required this.onYearPassed, required this.onAgentAction, required this.gameManager});
 
   void start() {
-    _isActive = true;
     _yearPassed();
     _agentAction();
   }
 
-  void stop() {
-    _isActive = false;
-  }
-
   void _yearPassed() {
-    if (!_isActive) return;
+    if (gameManager.state.runState != RunState.Running) {
+      return;
+    }
     Future.delayed(Duration(seconds: 1), () {
       onYearPassed();    
       if ((gameManager.state.co2Level > 430 || gameManager.state.co2Level < 270) && 
@@ -40,7 +36,9 @@ class GameTimer {
   }
 
   void _agentAction() {
-    if (!_isActive) return;
+    if (gameManager.state.runState != RunState.Running) {
+      return;
+    }    
     Future.delayed(Duration(milliseconds: 250), () {
       onAgentAction();
       _agentAction();

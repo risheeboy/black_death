@@ -11,7 +11,6 @@ import 'q_agent.dart';
 import 'simple_agent.dart';
 import 'utils.dart';
 import 'agent_screen.dart';
-import 'run_state.dart';
 
 final co2Data = [];
 
@@ -23,13 +22,11 @@ class BlackDeath extends StatefulWidget {
 class _BlackDeathAppState extends State<BlackDeath> {
   GameManager gameManager = GameManager(GameState(), SimpleAgent(), QAgent());
   late GameTimer gameTimer;
-  bool isGameStarted = false;
-  bool isGamePaused = false;
   bool showRedFlash = false;
 
   @override
   Widget build(BuildContext context) {
-    return isGameStarted ? buildGameScreen() : buildStartScreen();
+    return gameManager.state.runState == RunState.NotStarted ? buildStartScreen() : buildGameScreen();
   }
 
   Widget buildGameScreen() {
@@ -48,7 +45,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
           );
         },
         onPausePressed: () {
-          if (isGamePaused) {
+          if (gameManager.state.runState == RunState.Paused) {
             resumeGame();
           } else {
             pauseGame();
@@ -809,14 +806,13 @@ Game actions and results are used to train an AI model, that learns from all use
                 SizedBox(height: 20),
                 ElevatedButton(
                   onPressed:() {
-                    isGameStarted = true;
+                    gameManager.state.runState = RunState.Running;
                     gameTimer = GameTimer(
                       onYearPassed: () {
                         setState(() {
                           gameManager.updateGameState();
                           if (gameManager.state.isGameOver()) {
                             _gameOver(gameManager.state);
-                            gameTimer.stop();
                           }
                           co2Data.add(ChartPoint(gameManager.state.lapsedYears, gameManager.state.co2Level));
                         });
@@ -879,20 +875,18 @@ Different endings reflect the success or failure of your environmental strategie
 
   @override
   void dispose() {
-    gameTimer.stop();
     super.dispose();
   }
   void pauseGame() {
     setState(() {
-      isGamePaused = true;
-      gameTimer.stop(); // Stop the game timer
+      gameManager.state.runState = RunState.Paused;
       showTriviaQuestion(gameManager.state); // Show trivia question
     });
   }
 
   void resumeGame() {
     setState(() {
-      isGamePaused = false;
+      gameManager.state.runState = RunState.Running;
       gameTimer.start(); // Resume the game timer
     });
   }

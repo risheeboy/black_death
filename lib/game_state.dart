@@ -1,5 +1,4 @@
 import 'dart:math';
-import 'run_state.dart';
 import 'utils.dart';
 
 class GameState {
@@ -26,7 +25,7 @@ class GameState {
     this.awareness = 1,
     this.carbonCapture = 6,
     this.money = annualBudget,
-    this.runState = RunState.Running,
+    this.runState = RunState.NotStarted,
     this.researchLevel = 1.0,
     this.consecutiveYearsInRange = 0,
     this.lastPpmIncrease = 0,

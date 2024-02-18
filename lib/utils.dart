@@ -37,3 +37,13 @@ const Map<Sidekick, IconData> sidekickIcons = {
   Sidekick.Custom: Icons.settings,
   Sidekick.AI: Icons.android,
 };
+
+enum RunState {
+    NotStarted,
+    Running,
+    Paused,
+    Won,
+    LostTooHigh,
+    LostTooLow,
+    LostNotStable
+}
