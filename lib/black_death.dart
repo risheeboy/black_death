@@ -1127,14 +1127,18 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
               onPressed: onBuildPressed,
               iconSize: 20,
             ),
-            IconButton(
-              icon: Icon(
-                gameManager.state.runState == RunState.Paused ? Icons.play_arrow : Icons.pause,
-                color: Colors.black,
+            if (gameManager.state.runState == RunState.Running)
+              IconButton(// Pause button
+                icon: Icon(Icons.pause, color: Colors.black),
+                iconSize: 30,
+                onPressed: onPausePressed,
               ),
-              iconSize: 30,
-              onPressed: onPausePressed,
-            ),
+            if (gameManager.state.runState == RunState.Paused)
+              IconButton(// Play button
+                icon: Icon(Icons.play_arrow, color: Colors.black),
+                iconSize: 30,
+                onPressed: onPausePressed,
+              ),
           ],
         ),
       ],

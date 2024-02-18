@@ -10,6 +10,27 @@ This game introduces the concepts:
 
 [bucky.games](https://bucky.games)
 
+## Architecture
+
+```mermaid
+graph TD
+    Game[Flutter Game] -->|User Defines| Rules[Sidekick Rules]
+    Game -->|Batch Persistence| Gameplay[Gameplay History]
+    Gameplay --> Trainer[AI Training/Q-Learning]
+    Trainer --> Agent[AI Agent/Q-Table]
+    Agent --> Game
+
+    subgraph Google Firestore 
+    Rules
+    Gameplay
+    Agent
+    end
+
+    subgraph Google Cloud Functions 
+    Trainer
+    end
+```
+
 ## Development
 
 Pre-requisite:
