@@ -17,23 +17,25 @@ graph TD
     Player -->|Action| Game[Game Environment]
     Player -->|Sidekick Rules Setup| Setup[Setup Page]
     Setup --> Rules[Sidekick Rules]
-    Rules -->|Fetch Player's Rules| Sidekick[Sidekicks]
-    Sidekick -->|Action| Game
+    RulesAgent[Sidekick Rules] -->|Action| Game
+    AIAgent[AI Sidekick] -->|Action| Game
+    Rules -->|Player's Rules| RulesAgent
     Game -->|Batch store actions and states| Gameplay[Gameplay History]
-    Timer[State Evaluation Timer] --> Game
+    Timer[State Timer] -->|State Evaluation| Game
     Gameplay --> Trainer[AI Training/Q-Learning]
-    Trainer --> Agent[AI Agent/Q-Table]
-    Agent -->|Best Action for current state| Sidekick
+    Trainer --> QTable[AI Agent/Q-Table]
+    QTable -->|Best Action for State| AIAgent
 
     subgraph Google Firestore 
     Rules
     Gameplay
-    Agent
+    QTable
     end
 
     subgraph Flutter App on Firebase Hosting
     Game
-    Sidekick
+    RulesAgent
+    AIAgent
     Setup
     Timer
     end
