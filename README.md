@@ -15,11 +15,12 @@ This game introduces the concepts:
 ```mermaid
 graph TD
     Player -->|Action| Game[Game Environment]
-    Player -->|Rules Setup| Setup[Setup Page]
+    Player -->|Sidekick Rules Setup| Setup[Setup Page]
     Setup --> Rules[Sidekick Rules]
     Rules -->|Fetch Player's Rules| Sidekick[Sidekicks]
     Sidekick -->|Action| Game
     Game -->|Batch store actions and states| Gameplay[Gameplay History]
+    Timer[State Evaluation Timer] --> Game
     Gameplay --> Trainer[AI Training/Q-Learning]
     Trainer --> Agent[AI Agent/Q-Table]
     Agent -->|Best Action for current state| Sidekick
@@ -30,10 +31,11 @@ graph TD
     Agent
     end
 
-    subgraph Flutter Game
+    subgraph Flutter App on Firebase Hosting
     Game
     Sidekick
     Setup
+    Timer
     end
 
     subgraph Google Cloud Functions 
