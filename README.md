@@ -75,3 +75,8 @@ Subsequent deployments:
 
     flutter build web
     firebase deploy
+
+## Upcoming Updates
+
+- AI Sidekick to handle states not seen before
+- Environment to be realistic (e.g. renewables maintenance/replacement)
