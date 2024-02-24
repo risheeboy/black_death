@@ -13,18 +13,18 @@ class GameManager {
   Sidekick sidekick = Sidekick.None;
   int gameInstance = 0;
   SimpleAgent simpleAgent;
-  CustomSidekick customSidekick = CustomSidekick();//TODO initialize rules
+  CustomSidekick customSidekick = CustomSidekick();
   QAgent qagent;
   Random random = new Random();
   double globalEnergyUsage = 160; // in TWh
 
-  GameState _previousState = GameState();//TODO check creating new GameState is correct logic
+  GameState _previousState = GameState();
   final List<_QAction> _qactions = [];
   final List<GameAction> _pendingActions = [];
 
   GameManager(this.state, this.simpleAgent, this.qagent);
 
-  double frequencyOfNaturalDisastor = (GameState().co2Level - 350).abs()/200;//TODO check creating new GameState is correct logic
+  double frequencyOfNaturalDisastor = (GameState().co2Level - 350).abs()/200;
 
   void updateGameState() {
     // GameState oldState = GameState.clone(state);
@@ -99,7 +99,7 @@ class GameManager {
       case Sidekick.System:
         action = simpleAgent.chooseAction(state);
         break;
-      case Sidekick.Custom:
+      case Sidekick.Rules:
         action = customSidekick.chooseAction(state);
         break;
       case Sidekick.AI:

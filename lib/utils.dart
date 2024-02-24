@@ -27,15 +27,14 @@ const Map<GameAction, double> capitalExpense = {
   GameAction.destroySolarFactory: 1,
   GameAction.decreaseFossilFuelUsage: 1,
   GameAction.doNothing: 0,
-  GameAction.naturalDisaster: 0,
 };
 
-enum Sidekick { None, System, Custom, AI}
+enum Sidekick { None, System, Rules, AI}
 const Map<Sidekick, IconData> sidekickIcons = {
   Sidekick.None: Icons.person,
-  Sidekick.System: Icons.computer,
-  Sidekick.Custom: Icons.settings,
+  Sidekick.Rules: Icons.rule_rounded,
   Sidekick.AI: Icons.android,
+  Sidekick.System: Icons.computer,
 };
 
 enum RunState {

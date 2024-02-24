@@ -491,7 +491,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                                       animation: true,
                                       animateFromLastPercent: true,
                                       progressColor: state.co2Level > 400 ? Colors.red : Color(0xFF02AB00),
-                                      backgroundColor: Color.fromARGB(181, 255, 255, 255),
+                                      backgroundColor: Color.fromARGB(181, 173, 173, 173),
                                       padding: EdgeInsets.zero,
                                   ),
                                 ],
@@ -531,7 +531,7 @@ class _BlackDeathAppState extends State<BlackDeath> {
                                     ),
                                   ),
                                   LinearPercentIndicator(
-                                    percent: min(state.lapsedYears, yearsToWin)/yearsToWin, //TODO set gameover when passed yeards
+                                    percent: min(state.lapsedYears, yearsToWin)/yearsToWin,
                                     width: 80,
                                     lineHeight: 6,
                                     animation: true,
@@ -732,11 +732,11 @@ class _BlackDeathAppState extends State<BlackDeath> {
                             }).toList(),
                             extraLinesData: ExtraLinesData(
                               horizontalLines: [
-                                HorizontalLine(y: 430, color: Color.fromARGB(255, 219, 177, 50), strokeWidth: 1,),
+                                HorizontalLine(y: 430, color: Color.fromARGB(255, 220, 120, 50), strokeWidth: 1,),
                                 HorizontalLine(y: 360, color: Color.fromARGB(255, 160, 180, 130), strokeWidth: 2,),
                                 HorizontalLine(y: 350, color: Color.fromARGB(255, 160, 180, 130), strokeWidth: 3,),
                                 HorizontalLine(y: 340, color: Color.fromARGB(255, 160, 180, 130), strokeWidth: 2,),
-                                HorizontalLine(y: 270, color: Color.fromARGB(255, 219, 188, 95), strokeWidth: 1,),
+                                HorizontalLine(y: 270, color: Color.fromARGB(255, 220, 120, 50), strokeWidth: 1,),
                               ],
                             ),
                           ),
@@ -926,6 +926,7 @@ Different endings reflect the success or failure of your environmental strategie
   void _gameOver(GameState state) {
     double money = state.money;
     // populate the message based on the run state
+    String header = "You lost 😞";
     String message = "";
     switch (state.runState) {
       case RunState.LostTooHigh:
@@ -938,15 +939,16 @@ Different endings reflect the success or failure of your environmental strategie
         message = "CO2 levels are not stable. Planet is doomed.";
         break;
       case RunState.Won:
+        header = "You Won! 🎉\nScore: $money";
         message = "CO2 levels stabilized for 10 years! You saved the planet!";
         break;
       default:
-        message = "Game over";
+        message = header;
     }
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: Text("Game Over \n Your score is $money"),
+        title: Text(header),
         content: Text(message),
         actions: [
           TextButton(
@@ -1082,27 +1084,15 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                   ),
                 ),
                 PopupMenuItem<Sidekick>(
-                  value: Sidekick.System,
+                  value: Sidekick.Rules,
                   child: ListTile(
                     leading: Icon(
-                      sidekickIcons[Sidekick.System],
+                      sidekickIcons[Sidekick.Rules],
                       color: Colors.black,
                       size: 24,
                     ),
-                    title: Text('System'),
-                    selected: gameManager.sidekick == Sidekick.System,
-                  ),
-                ),
-                PopupMenuItem<Sidekick>(
-                  value: Sidekick.Custom,
-                  child: ListTile(
-                    leading: Icon(
-                      sidekickIcons[Sidekick.Custom],
-                      color: Colors.black,
-                      size: 24,
-                    ),
-                    title: Text('Custom'),
-                    selected: gameManager.sidekick == Sidekick.Custom,
+                    title: Text('Rules'),
+                    selected: gameManager.sidekick == Sidekick.Rules,
                   ),
                 ),
                 PopupMenuItem<Sidekick>(
@@ -1117,11 +1107,23 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
                     selected: gameManager.sidekick == Sidekick.AI,
                   ),
                 ),
+                PopupMenuItem<Sidekick>(
+                  value: Sidekick.System,
+                  child: ListTile(
+                    leading: Icon(
+                      sidekickIcons[Sidekick.System],
+                      color: Colors.black,
+                      size: 24,
+                    ),
+                    title: Text('System'),
+                    selected: gameManager.sidekick == Sidekick.System,
+                  ),
+                ),
               ],
             ),
             IconButton(
               icon: Icon(
-                Icons.build,
+                Icons.rule_folder_outlined,
                 color: Colors.black,
               ),
               onPressed: onBuildPressed,
@@ -1129,8 +1131,8 @@ class AppBarWidget extends StatelessWidget implements PreferredSizeWidget {
             ),
             if (gameManager.state.runState == RunState.Running)
               IconButton(// Pause button
-                icon: Icon(Icons.pause, color: Colors.black),
-                iconSize: 30,
+                icon: Icon(Icons.attach_money_rounded, color: Colors.black),
+                iconSize: 20,
                 onPressed: onPausePressed,
               ),
             if (gameManager.state.runState == RunState.Paused)
