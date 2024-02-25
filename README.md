@@ -3,6 +3,7 @@
 An educational game built in Flutter about climate change and ways to prevent it
 
 This game introduces the concepts:
+
 1. A rule-based sidekick that you can configure to play along/for you
 2. Games played cotribute to a central AI, which gets better (in solving the problem) with each game played
 
@@ -54,7 +55,9 @@ Pre-requisite:
 
 To run the app in debug mode:
 
+```bash
     flutter run
+```
 
 ## Deployment (Firebase Hosting)
 
@@ -64,17 +67,21 @@ Pre-requisite:
 
 First deployment:
 
+```bash
     flutter create --platforms=web .
     flutter build web
 
     firebase login
     firebase init
     firebase deploy
+```
 
 Subsequent deployments:
 
+```bash
     flutter build web
     firebase deploy
+```
 
 ## Upcoming Updates
 

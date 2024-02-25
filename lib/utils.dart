@@ -17,11 +17,11 @@ const double educationBudgetFactor = 0.15; // Factor for calculating education b
 const double yearsToWin = 200; // Years to win the game
 final int gameInstance = Random().nextInt(1000000000);
 
-enum GameAction { buildSolarFactory, increaseResearch, increaseFossilFuelUsage, increaseEducationBudget, decreaseEducationBudget, carbonCapture, doNothing, destroySolarFactory, decreaseFossilFuelUsage, naturalDisaster }
+enum GameAction { buildSolarFactory, increaseResearch, increaseFossilFuelUsage, increaseEducationBudget, decreaseEducationBudget, carbonCapture, doNothing, destroySolarFactory, decreaseFossilFuelUsage }
 
 const Map<GameAction, double> capitalExpense = {
   GameAction.buildSolarFactory: 2,
-  GameAction.increaseFossilFuelUsage: 1,
+  GameAction.increaseFossilFuelUsage: 2,
   GameAction.carbonCapture: 8,
   GameAction.increaseResearch: 5,
   GameAction.destroySolarFactory: 1,

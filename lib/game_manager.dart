@@ -32,9 +32,9 @@ class GameManager {
     state.lapsedYears++;
     state.money += annualBudget;
     print("Year: ${state.lapsedYears} Money: ${state.money}");
-    print("Demand: ${state.renewableDemand().round()} Supply: ${state.renewableSupply()} Awareness: ${state.awareness.round()} solar: ${state.solarProduction.round()} fossil: ${state.fossilFuelProduction.round()}");
-    //print("Fossil PPM Added: ${state.ppmAnnualyAddedByFossilFuels().round()} Carbon Capture: ${state.carbonCapture}");
-    print("PPM: ${state.co2Level.round()} Last PPM Added: ${state.lastPpmIncrease.round()} Supply Shortage: ${state.supplyShortage().round()}");
+    print("Demand: ${state.renewableDemand().toStringAsFixed(2)} Supply: ${state.renewableSupply()} Awareness: ${state.awareness.toStringAsFixed(2)} solar: ${state.solarProduction.toStringAsFixed(2)} fossil: ${state.fossilFuelProduction.round()}");
+    //print("Fossil PPM Added: ${state.ppmAnnualyAddedByFossilFuels().toStringAsFixed(2)} Carbon Capture: ${state.carbonCapture.toStringAsFixed(2)}");
+    print("PPM: ${state.co2Level.toStringAsFixed(2)} Last PPM Added: ${state.lastPpmIncrease.toStringAsFixed(2)} Supply Shortage: ${state.supplyShortage().toStringAsFixed(2)}");
     double educationSpend = min(state.money, state.educationBudget.toDouble());
     state.awareness += (educationSpend * educationBudgetFactor) * (1 - annualAwarenessFractionDecline);
     state.money -= educationSpend; // Capex in Billion USD
@@ -116,7 +116,7 @@ class GameManager {
     _pendingActions.add(action);
   }
 
-  void takeAction(GameAction action, {Function? onNaturalDisaster}) {
+  void takeAction(GameAction action) {
     if (state.runState != RunState.Running) return;
     playAudioButton();
     double capex = capitalExpense[action] ?? 0;
@@ -134,34 +134,42 @@ class GameManager {
         if(state.educationBudget > 0)
           state.educationBudget--;
       } else if(action == GameAction.carbonCapture) {
-        state.carbonCapture++;
+        state.carbonCapture += 0.01;
         state.money -= capex;
       } else if(action == GameAction.increaseResearch) {
-        state.researchLevel++;
+        state.researchLevel += 0.01;
         state.money -= capex;
       } else if(action == GameAction.destroySolarFactory) {
-        if (state.solarProduction > 0)
+        if (state.solarProduction > 0) {
           state.solarProduction--;
-        state.money -= capex;
+          state.money -= capex;
+        }
       } else if(action == GameAction.decreaseFossilFuelUsage) {
-        if (state.fossilFuelProduction > 0)
-          state.fossilFuelProduction--;
-        state.money -= capex;
-      } else if (action == GameAction.naturalDisaster) {
-        onNaturalDisaster?.call();
-          if (state.solarProduction > 0) {
-            int numToDestroy = random.nextInt(3)+1; // 5 is upper limit
-            if (numToDestroy > state.solarProduction) {
-              numToDestroy = state.solarProduction;
-            }
-            state.solarProduction -= numToDestroy;
+        if (state.fossilFuelProduction > 0) {
+          if(state.renewableSupply() + state.fossilFuelProduction > energyDemand) {
+            state.fossilFuelProduction--;
+            state.money -= capex;
+          } else {
+            print('Fossil fuel decrease will cause energy shortage. energyDemand: $energyDemand, renewableSupply: ${state.renewableSupply()}, fossilFuelProduction: ${state.fossilFuelProduction}');
           }
         }
       } else {
         print('Sorry, capex $capex > available money ${state.money}');//TODO play warning sound and inform user
       }
+    }
   }
 
+  void naturalDisaster({Function? onNaturalDisaster}) {
+    onNaturalDisaster?.call();
+    if (state.solarProduction > 0) {
+      int numToDestroy = random.nextInt(3)+1; // destroy between 0 to 5
+      if (numToDestroy > state.solarProduction) {
+        numToDestroy = state.solarProduction;
+      }
+      state.solarProduction -= numToDestroy;
+    }
+  }
+  
   void setSidekick(Sidekick selectedSidekick) {
     sidekick = selectedSidekick;
   }
