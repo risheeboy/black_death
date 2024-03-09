@@ -911,7 +911,6 @@ The game concludes based on your ability to stabilize CO2 levels over a period.
 Different endings reflect the success or failure of your environmental strategies.
 
 Contributions are welcome: https://github.com/risheeboy/black_death/
-
 ''',
                   textAlign: TextAlign.center,
                   style: TextStyle(
