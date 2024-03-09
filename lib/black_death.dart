@@ -320,7 +320,32 @@ class _BlackDeathAppState extends State<BlackDeath> {
                                         style: TextStyle(  fontSize: 14),
                                       ),
                                     ),
-
+                                    SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero, // remove default padding
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text("Education budget", style: TextStyle(fontSize: 14)), // Customize
+                                              content: Text(
+                                                  "By increasing the amount of educated youth the demand for renewable energy increases and therefore the demand for fossil fuels decreases. This helps the renewable industry thrive and make a bigger impact",
+                                                  style: TextStyle(fontSize: 12),
+                                                  ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: Text("OK"),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        icon: Icon(Icons.info_outline, size: 20), // you can also adjust the size of the icon here
+                                      ),
+                                    ),
                                     Ink(
                                       decoration: const ShapeDecoration(
                                         color: Colors.blue,
@@ -399,6 +424,32 @@ class _BlackDeathAppState extends State<BlackDeath> {
                                           style: TextStyle(fontSize: 14),
                                           textAlign: TextAlign.center,
                                         ),
+                                      ),
+                                    ),
+                                    SizedBox(
+                                      height: 30,
+                                      width: 30,
+                                      child: IconButton(
+                                        padding: EdgeInsets.zero, // remove default padding
+                                        onPressed: () {
+                                          showDialog(
+                                            context: context,
+                                            builder: (context) => AlertDialog(
+                                              title: Text("Increase Research", style: TextStyle(fontSize: 14)), // Customize
+                                              content: Text(
+                                                  "This increases the efficiency of your renewable energy  factories. Therefore investing in this will increase your renewable energy production in the long term.", // Customize
+                                                  style: TextStyle(fontSize: 12),
+                                                  ),
+                                              actions: [
+                                                TextButton(
+                                                  onPressed: () => Navigator.pop(context),
+                                                  child: Text("OK"),
+                                                ),
+                                              ],
+                                            ),
+                                          );
+                                        },
+                                        icon: Icon(Icons.info_outline, size: 20), // you can also adjust the size of the icon here
                                       ),
                                     ),
                                     Ink(
@@ -858,6 +909,9 @@ Engage with trivia questions throughout the game to earn rewards and enhance you
 End Game:
 The game concludes based on your ability to stabilize CO2 levels over a period.
 Different endings reflect the success or failure of your environmental strategies.
+
+Contributions are welcome: https://github.com/risheeboy/black_death/
+
 ''',
                   textAlign: TextAlign.center,
                   style: TextStyle(
@@ -1272,7 +1326,44 @@ List<TriviaQuestion> triviaQuestions = [
       ["True", "False"],
       0),
   TriviaQuestion("Which years have been the hottest on record?",
-      ["2013 and 2019", "2016 and 2020", "2015 and 2022", "2005 and 2014"], 1),
+      ["2013 and 2019", "2016 and 2020", "2015 and 2022", "2005 and 2014"], 
+      1),
+  TriviaQuestion("The Earth's average temperature has increased by approximately how much since the late 19th century?",
+      ["0.5 degrees Celsius", "1.0 degree Celsius", "1.5 degrees Celsius", "2.0 degrees Celsius"],
+      1),
+  TriviaQuestion("Which renewable energy source saw the largest growth rate worldwide in the past decade?",
+      ["Solar", "Wind", "Hydroelectric", "Biomass"], 
+      0),
+  TriviaQuestion("Which process absorbs more than a quarter of CO2 emitted by human activities?",
+      ["Photosynthesis by plants", "Absorption by oceans", "Chemical reactions in the soil", "Absorption by the ozone layer"], 
+      1),
+  TriviaQuestion("Which continent is experiencing the fastest warming due to climate change?",
+      ["Antarctica", "North America", "Asia", "Africa"], 
+      0),
+  TriviaQuestion("What is the main goal of climate adaptation strategies?",
+      ["To reduce greenhouse gas emissions", "To enhance global warming", "To minimize the impact of climate change on society and ecosystems", "To promote the use of fossil fuels"], 
+      2),
+  TriviaQuestion("Which gas is responsible for the most warming per molecule, making it an extremely potent greenhouse gas?",
+      ["Carbon dioxide", "Methane", "Nitrous oxide", "Sulfur hexafluoride"], 
+      3),
+  TriviaQuestion("What natural event can significantly affect global temperatures and is characterized by the warming of ocean surface temperatures in the central and eastern tropical Pacific Ocean?",
+      ["El Niño", "La Niña", "The Indian Ocean Dipole", "The Atlantic Meridional Overturning Circulation"], 
+      0),
+  TriviaQuestion("Which of the following is a consequence of ocean acidification?",
+      ["Decreased oxygen levels in the ocean", "Increased sea surface temperatures", "Harm to coral reefs and shellfish", "Reduction in sea ice"], 
+      2),
+  TriviaQuestion("What percentage of the Earth's freshwater is stored in glaciers and ice caps?",
+      ["68%", "30%", "50%", "80%"], 
+      0),
+  TriviaQuestion("Which of the following ecosystems absorbs the most carbon dioxide, acting as a significant carbon sink?",
+      ["Tropical rainforests", "Mangroves", "Peat bogs", "Oceans"], 
+      1),
+  TriviaQuestion("What is the term for the gradual increase in average global temperatures due to the greenhouse effect caused by increased levels of greenhouse gases?",
+      ["Global warming", "Climate change", "Atmospheric heating", "Thermal expansion"], 
+      0),
+  TriviaQuestion("By what mechanism do oceans absorb carbon dioxide from the atmosphere?",
+      ["Photosynthesis by marine plants", "Chemical dissolution", "Thermal absorption", "Mechanical filtration"], 
+      1),
   // Add more questions here
 ];
 

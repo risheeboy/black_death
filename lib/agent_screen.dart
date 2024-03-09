@@ -44,7 +44,7 @@ class _AgentScreenState extends State<AgentScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Configure Agent'),
+        title: Text('Sidekick Rules'),
         actions: [
           IconButton(
             icon: Icon(Icons.refresh),
